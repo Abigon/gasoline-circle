@@ -17,6 +17,10 @@ public:
 	void StartFire();
 	void StopFire();
 	void Reload();
+	void AddBullets(int32 NewBullets);
+
+	bool IsClipEmpty() const { return BulletsInClip == 0; }
+	bool IsAmmoEmpty() const { return TotalBullets == 0; }
 
 
 protected:
@@ -32,9 +36,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	int32 MaxBullets = 90;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	int32 MaxBulletsInClip = 15;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	int32 TotalBullets = 0;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	int32 BulletsInClip = 15;
+	int32 BulletsInClip = 0;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	int32 StartBullets = 60;
 

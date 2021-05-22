@@ -17,6 +17,9 @@ void ASGCWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	check(WeaponMesh);
+
+	TotalBullets = StartBullets;
+	Reload();
 }
 
 void ASGCWeapon::StartFire()
@@ -30,20 +33,14 @@ void ASGCWeapon::StopFire()
 	GetWorldTimerManager().ClearTimer(ShotTimerHandle);
 }
 
-void ASGCWeapon::Reload()
-{
-
-}
-
 void ASGCWeapon::MakeShot()
 {
-	if (!GetWorld()) return;
+	if (!GetWorld() || IsClipEmpty())
+	{
+		StopFire();
+		return;
+	}
 
-	//if (!GetWorld() || IsAmmoEmpty())
-	//{
-	//	StopFire();
-	//	return;
-	//}
 	if (ProjectileClass)
 	{
 		FVector tempVector = WeaponMesh->GetSocketLocation(MuzzleSocketName);
@@ -51,5 +48,25 @@ void ASGCWeapon::MakeShot()
 
 		ASGCProjectile* TempProjectile = GetWorld()->SpawnActor<ASGCProjectile>(ProjectileClass, tempVector, tempRotator);
 		TempProjectile->SetOwner(GetOwner());
+
+		BulletsInClip--;
 	}
 }
+
+void ASGCWeapon::AddBullets(int32 NewBullets)
+{
+	TotalBullets = FMath::Max(TotalBullets + NewBullets, MaxBullets);
+}
+
+void ASGCWeapon::Reload()
+{
+
+	if (!IsAmmoEmpty())
+	{
+		int32 NeedBullets = MaxBulletsInClip - BulletsInClip;
+		NeedBullets = NeedBullets <= TotalBullets ? NeedBullets : TotalBullets;
+		BulletsInClip += NeedBullets;
+		TotalBullets -= NeedBullets;
+	}
+}
+
