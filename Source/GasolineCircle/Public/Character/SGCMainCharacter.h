@@ -13,9 +13,18 @@ class GASOLINECIRCLE_API ASGCMainCharacter : public ACharacter
 
 public:
 
+	bool CanPay(int32 Price) const { return CoinAmount >= Price; }
+	int32 GetCoinAmount() const { return CoinAmount; }
+	void AddCoins(int32 Coins);
+	void PainCoin(int32 Coins);
+
+
 	ASGCMainCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	FORCEINLINE class USGCWeaponComponent* GetWeaponComponent() const { return WeaponComponent; }
+	FORCEINLINE class USGCHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
@@ -27,17 +36,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	class USGCHealthComponent* HealthComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Rotate")
 	float BaseTurnRate = 45.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera Zoom")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Zoom")
 	float CameraZoomMax = 3000.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera Zoom")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Zoom")
 	float CameraZoomMin = 600.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera Zoom")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Zoom")
 	float CameraZoomSpeed = 200.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera Zoom")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Zoom")
 	float CameraZoomDefault = 1600.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coin")
+	int32 MaxCoinAmount = 0.f;
 
 	virtual void BeginPlay() override;
 
@@ -50,5 +62,7 @@ protected:
 
 	void OnDeath();
 private:
+
+	int32 CoinAmount = 0;
 
 };

@@ -25,9 +25,7 @@ void USGCHealthComponent::BeginPlay()
 void USGCHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
 	ApplyDamage(Damage);
-	//UE_LOG(LogTemp, Warning, TEXT("On any damage: %f"), Damage);
 }
-
 
 void USGCHealthComponent::SetHealth(float NewHealth)
 {

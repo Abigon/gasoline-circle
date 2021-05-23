@@ -45,6 +45,8 @@ void ASGCMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	HealthComponent->OnDeath.AddUObject(this, &ASGCMainCharacter::OnDeath);
+
+	CoinAmount = 0;
 }
 
 void ASGCMainCharacter::Tick(float DeltaTime)
@@ -117,4 +119,24 @@ void ASGCMainCharacter::OnDeath()
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);
+}
+
+void ASGCMainCharacter::AddCoins(int32 Coins)
+{
+	if (MaxCoinAmount != 0)
+	{
+		CoinAmount = FMath::Max(CoinAmount + Coins, MaxCoinAmount);
+	}
+	else
+	{
+		CoinAmount += Coins;
+	}
+}
+
+void ASGCMainCharacter::PainCoin(int32 Coins)
+{
+	if (CanPay(Coins))
+	{
+		CoinAmount -= Coins;
+	}
 }

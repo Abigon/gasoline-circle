@@ -1,9 +1,10 @@
 // Gasoline Circle. Skillbox's Gamebox test, All Right Reserved!!
 
 
-#include "UI/SGCPlayerHUDWidget.h"
+#include "Character/SGCMainCharacter.h"
 #include "SGCComponents/SGCWeaponComponent.h"
 #include "SGCComponents/SGCHealthComponent.h"
+#include "UI/SGCPlayerHUDWidget.h"
 
 void USGCPlayerHUDWidget::NativeOnInitialized()
 {
@@ -34,30 +35,24 @@ FString USGCPlayerHUDWidget::FormatBullets(int32 BulletsNum) const
 
 FString USGCPlayerHUDWidget::GetBulletsInfo() const
 {
-	const auto PlayerPawn = GetOwningPlayerPawn();
+	const auto PlayerPawn = Cast<ASGCMainCharacter>(GetOwningPlayerPawn());
 	if (!PlayerPawn) return "0 / 0";
-	const auto WeaponComponent = Cast<USGCWeaponComponent>(PlayerPawn->GetComponentByClass(USGCWeaponComponent::StaticClass()));
-	if (!WeaponComponent) return "0 / 0";
 
-	return FormatBullets(WeaponComponent->GetCurrentBulletsInClip()) + " / " + FormatBullets(WeaponComponent->GetCurrentTotalBullets());
+	return FormatBullets(PlayerPawn->GetWeaponComponent()->GetCurrentBulletsInClip()) + " / " + FormatBullets(PlayerPawn->GetWeaponComponent()->GetCurrentTotalBullets());
 }
 
 float USGCPlayerHUDWidget::GetHealthPercent() const
 {
-	const auto PlayerPawn = GetOwningPlayerPawn();
+	const auto PlayerPawn = Cast<ASGCMainCharacter>(GetOwningPlayerPawn());
 	if (!PlayerPawn) return 0.f;
-	const auto HealthComponent = Cast<USGCHealthComponent>(PlayerPawn->GetComponentByClass(USGCHealthComponent::StaticClass()));
-	if (!HealthComponent) return 0.f;
 
-	return HealthComponent->GetHealthPercent();
+	return PlayerPawn->GetHealthComponent()->GetHealthPercent();
 }
 
 int32 USGCPlayerHUDWidget::GetCoinsAmount() const
 {
-	//const auto PlayerPawn = GetOwningPlayerPawn();
-	//if (!PlayerPawn) return "0 / 0";
-	//const auto WeaponComponent = Cast<USGCWeaponComponent>(PlayerPawn->GetComponentByClass(USGCWeaponComponent::StaticClass()));
-	//if (!WeaponComponent) return "0 / 0";
+	const auto PlayerPawn = Cast<ASGCMainCharacter>(GetOwningPlayerPawn());
+	if (!PlayerPawn) return 0;
 
-	return 5;
+	return PlayerPawn->GetCoinAmount();
 }
