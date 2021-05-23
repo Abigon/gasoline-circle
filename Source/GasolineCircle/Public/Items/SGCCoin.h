@@ -30,7 +30,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coin | Rotation")
 	bool bRotate = true;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coin | Rotation", meta = (EditCondition = "bRotate"))
-	float RotationRate = 45.f;;
+	float RotationRate = 90.f;;
 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coin")

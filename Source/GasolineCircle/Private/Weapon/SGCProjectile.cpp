@@ -1,6 +1,7 @@
 // Gasoline Circle. Skillbox's Gamebox test, All Right Reserved!!
 
 
+#include "Enemy/SGCEnemy.h"
 #include "Weapon/SGCProjectile.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -45,12 +46,9 @@ void ASGCProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* 
 	MovementComponent->StopMovementImmediately();
 	Destroy();
 
-	const auto DamagedActor = Hit.GetActor();
+	const auto DamagedActor = Cast<ASGCEnemy>(OtherActor);
 	if (!DamagedActor) return;
-	const auto Pawn = Cast<APawn>(GetOwner());
-	if (!Pawn) return;
-	//FPointDamageEvent PointDamageEvent;
-	//PointDamageEvent.HitInfo = Hit;
-	//DamagedActor->TakeDamage(DamageAmount, PointDamageEvent, GetController(), this);
-	DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), Pawn->GetController(), this);
+
+	DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), nullptr , this);
+
 }

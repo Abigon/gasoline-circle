@@ -23,6 +23,10 @@ ASGCCoin::ASGCCoin()
 void ASGCCoin::BeginPlay()
 {
 	Super::BeginPlay();
+
+	check(CollisionVolume);
+	check(Mesh);
+
 	CollisionVolume->OnComponentBeginOverlap.AddDynamic(this, &ASGCCoin::OnOverlapBegin);
 }
 
