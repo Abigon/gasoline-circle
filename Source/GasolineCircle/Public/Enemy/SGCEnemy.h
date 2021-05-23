@@ -24,6 +24,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	class USGCHealthComponent* HealthComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
+	class UFloatingPawnMovement* MovementComponent;
+	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
 	float Damage = 1;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")

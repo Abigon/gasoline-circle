@@ -16,7 +16,9 @@ public class GasolineCircle : ModuleRules
 			"HeadMountedDisplay",
 			"PhysicsCore",
 			"GameplayTasks",
-			"NavigationSystem"      
+			"NavigationSystem",
+			"UMG",
+			"AIModule"
 		});
 	}
 }

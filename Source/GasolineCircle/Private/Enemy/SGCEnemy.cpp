@@ -1,13 +1,16 @@
 // Gasoline Circle. Skillbox's Gamebox test, All Right Reserved!!
 
 
+#include "Character/SGCMainCharacter.h"
 #include "Enemy/SGCEnemy.h"
 #include "SGCComponents/SGCHealthComponent.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "GameFramework/FloatingPawnMovement.h"
+#include "Kismet/GameplayStatics.h"
+
 
 ASGCEnemy::ASGCEnemy()
 {
@@ -25,6 +28,8 @@ ASGCEnemy::ASGCEnemy()
 	Mesh->SetupAttachment(CollisionComponent);
 
 	HealthComponent = CreateDefaultSubobject<USGCHealthComponent>(TEXT("HealthComponent"));
+	MovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
+	MovementComponent->MaxSpeed = 300.f;
 }
 
 void ASGCEnemy::BeginPlay()
@@ -39,17 +44,25 @@ void ASGCEnemy::BeginPlay()
 	HealthComponent->OnDeath.AddUObject(this, &ASGCEnemy::OnDeath);
 
 	GetWorldTimerManager().SetTimer(DamageTimerHandle, this, &ASGCEnemy::ApplyDamage, TimeBetweenDamage, true);
+
 }
 
 void ASGCEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	MoveToPlayer();
 }
 
 void ASGCEnemy::ApplyDamage()
 {
+	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+
 	DrawDebugSphere(GetWorld(), GetActorLocation(), OuterDamageRadius, 12, FColor::Red, false, 0.5f);
+	if (InnerDamageRadius)
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation(), InnerDamageRadius, 12, FColor::Green, false, 0.5f);
+	}
 
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), OuterDamageRadius, UDamageType::StaticClass(),	{ GetOwner() }, this, GetController(), true);
 }
@@ -66,5 +79,7 @@ void ASGCEnemy::OnDeath()
 
 void ASGCEnemy::MoveToPlayer()
 {
-	//UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), DestLocation);
+	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), PlayerPawn->GetActorLocation());
 }
