@@ -24,6 +24,8 @@ protected:
 	class UCameraComponent* CameraComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	class USGCWeaponComponent* WeaponComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
+	class USGCHealthComponent* HealthComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera")
 	float BaseTurnRate = 45.f;
@@ -46,6 +48,7 @@ protected:
 	void CameraZoomIn();
 	void CameraZoomOut();
 
+	void OnDeath();
 private:
 
 };

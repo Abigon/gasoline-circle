@@ -6,9 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "SGCGameMode.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class GASOLINECIRCLE_API ASGCGameMode : public AGameModeBase
 {

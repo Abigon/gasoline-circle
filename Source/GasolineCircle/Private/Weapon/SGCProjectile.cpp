@@ -43,12 +43,14 @@ void ASGCProjectile::BeginPlay()
 void ASGCProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	MovementComponent->StopMovementImmediately();
-
-	//const auto DamagedActor = HitResult.GetActor();
-	//if (!DamagedActor) return;
-	//FPointDamageEvent PointDamageEvent;
-	//PointDamageEvent.HitInfo = HitResult;
-	//DamagedActor->TakeDamage(DamageAmount, PointDamageEvent, GetController(), this);
-	//DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), GetController(), this);
 	Destroy();
+
+	const auto DamagedActor = Hit.GetActor();
+	if (!DamagedActor) return;
+	const auto Pawn = Cast<APawn>(GetOwner());
+	if (!Pawn) return;
+	//FPointDamageEvent PointDamageEvent;
+	//PointDamageEvent.HitInfo = Hit;
+	//DamagedActor->TakeDamage(DamageAmount, PointDamageEvent, GetController(), this);
+	DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), Pawn->GetController(), this);
 }

@@ -53,3 +53,18 @@ void USGCWeaponComponent::Reload()
 	CurrentWeapon->StopFire();
 	CurrentWeapon->Reload();
 }
+
+
+int32 USGCWeaponComponent::GetCurrentTotalBullets() const
+{
+	if (CurrentWeapon) return CurrentWeapon->GetTotalBullets();
+
+	return 0;
+}
+
+int32 USGCWeaponComponent::GetCurrentBulletsInClip() const
+{
+	if (CurrentWeapon) return CurrentWeapon->GetBulletsInClip();
+
+	return 0;
+}

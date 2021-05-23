@@ -3,8 +3,10 @@
 
 #include "Character/SGCMainCharacter.h"
 #include "SGCComponents/SGCWeaponComponent.h"
+#include "SGCComponents/SGCHealthComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -35,19 +37,19 @@ ASGCMainCharacter::ASGCMainCharacter()
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 
+	HealthComponent = CreateDefaultSubobject<USGCHealthComponent>(TEXT("HealthComponent"));
 	WeaponComponent = CreateDefaultSubobject<USGCWeaponComponent>(TEXT("WeaponComponent"));
 }
 
 void ASGCMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	HealthComponent->OnDeath.AddUObject(this, &ASGCMainCharacter::OnDeath);
 }
 
 void ASGCMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ASGCMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -103,4 +105,16 @@ void ASGCMainCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void ASGCMainCharacter::OnDeath()
+{
+	//PlayAnimMontage(DeathAnimMontage);
+	GetCharacterMovement()->DisableMovement();
+
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	WeaponComponent->StopFire();
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
 }

@@ -19,6 +19,8 @@ public:
 	void StopFire();
 	void Reload();
 
+	int32 GetCurrentTotalBullets() const;
+	int32 GetCurrentBulletsInClip() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")

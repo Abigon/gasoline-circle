@@ -22,6 +22,9 @@ public:
 	bool IsClipEmpty() const { return BulletsInClip == 0; }
 	bool IsAmmoEmpty() const { return TotalBullets == 0; }
 
+	int32 GetTotalBullets() const { return TotalBullets; }
+	int32 GetBulletsInClip() const { return BulletsInClip; }
+
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
