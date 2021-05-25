@@ -6,6 +6,7 @@
 #include "SGCComponents/SGCHealthComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/FloatingPawnMovement.h"
@@ -16,8 +17,8 @@ ASGCEnemy::ASGCEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	CollisionComponent->InitSphereRadius(80.f);
+	CollisionComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComponent"));
+//	CollisionComponent->InitSphereRadius(80.f);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	SetRootComponent(CollisionComponent);
