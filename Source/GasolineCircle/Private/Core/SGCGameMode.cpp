@@ -19,6 +19,7 @@ void ASGCGameMode::StartPlay()
 {
 	Super::StartPlay();
 
+	StartWave();
 	EndSale();
 }
 
@@ -37,6 +38,7 @@ void ASGCGameMode::StartSale()
 void ASGCGameMode::EndSale()
 {
 	bIsSale = false;
+	GetWorldTimerManager().ClearTimer(SaleCountdownTimerHandle);
 	OnFinishBulletsSale.Broadcast();
 
 	int32 SecondsToNextSale = FMath::RandRange(SecondsToSaleMin, SecondsToSaleMax);
@@ -54,15 +56,34 @@ void ASGCGameMode::SetCurrentPriceOfBullets()
 
 void ASGCGameMode::GameOver()
 {
-	GetWorldTimerManager().ClearTimer(NextSaleTimerHandle);
-	GetWorldTimerManager().ClearTimer(SaleCountdownTimerHandle);
-//	GetWorldTimerManager().ClearTimer(GameWaveTimerHandle);
+
+}
+
+void ASGCGameMode::WaveOver()
+{
+	EndSale();
+
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+	//GetWorldTimerManager().ClearTimer(NextSaleTimerHandle);
+	//GetWorldTimerManager().ClearTimer(GameWaveTimerHandle);
+}
+
+void ASGCGameMode::StartWave()
+{
+	//GetWorldTimerManager().SetTimer(GameWaveTimerHandle, nullptr, 1.f, true);
+}
+
+float ASGCGameMode::GetWaveTimerRate() const
+{
+	if (!GetWorld()) return 0;
+	return GetWorld()->GetTimeSeconds(); //GetWorldTimerManager().GetTimerRate(GameWaveTimerHandle);
 }
 
 bool ASGCGameMode::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)
 {
 	const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
 
+	GetWorldTimerManager().PauseTimer(GameWaveTimerHandle);
 	return PauseSet;
 }
 
@@ -71,7 +92,7 @@ bool ASGCGameMode::ClearPause()
 	const auto PauseCleared = Super::ClearPause();
 	if (PauseCleared)
 	{
-
+		GetWorldTimerManager().UnPauseTimer(GameWaveTimerHandle);
 	}
 	return PauseCleared;
 }

@@ -58,6 +58,8 @@ void ASGCEnemy::ApplyDamage()
 {
 	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
+	//return FVector::Dist(PlayerPawn->GetActorLocation(), GetActorLocation());
+
 	DrawDebugSphere(GetWorld(), GetActorLocation(), OuterDamageRadius, 12, FColor::Red, false, 0.5f);
 	if (InnerDamageRadius)
 	{

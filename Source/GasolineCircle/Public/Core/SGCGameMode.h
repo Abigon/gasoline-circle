@@ -31,6 +31,8 @@ public:
 	int32 GetBulletsForSale() const { return BulletsForSale; }
 	void EndSale();
 
+	float GetWaveTimerRate() const;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sale")
 	int32 SecondsToSaleMin = 5;
@@ -50,7 +52,7 @@ protected:
 	int32 StepPriceOfCountdown = 1.f;
 
 private:
-	FTimerHandle GameWaveTimerHandle;
+//	FTimerHandle GameWaveTimerHandle;
 	FTimerHandle NextSaleTimerHandle;
 	FTimerHandle SaleCountdownTimerHandle;
 
@@ -62,4 +64,6 @@ private:
 	void SetCurrentPriceOfBullets();
 
 	void GameOver();
+	void WaveOver();
+	void StartWave();
 };
