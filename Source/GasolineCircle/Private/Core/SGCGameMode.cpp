@@ -83,7 +83,7 @@ bool ASGCGameMode::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegat
 {
 	const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
 
-	GetWorldTimerManager().PauseTimer(GameWaveTimerHandle);
+//	GetWorldTimerManager().PauseTimer(GameWaveTimerHandle);
 	return PauseSet;
 }
 
@@ -92,7 +92,7 @@ bool ASGCGameMode::ClearPause()
 	const auto PauseCleared = Super::ClearPause();
 	if (PauseCleared)
 	{
-		GetWorldTimerManager().UnPauseTimer(GameWaveTimerHandle);
+//		GetWorldTimerManager().UnPauseTimer(GameWaveTimerHandle);
 	}
 	return PauseCleared;
 }

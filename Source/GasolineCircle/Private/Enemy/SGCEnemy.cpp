@@ -58,15 +58,19 @@ void ASGCEnemy::ApplyDamage()
 {
 	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
-	//return FVector::Dist(PlayerPawn->GetActorLocation(), GetActorLocation());
+	auto DistanceToPlayer = FVector::Dist(PlayerPawn->GetActorLocation(), GetActorLocation());
 
 	DrawDebugSphere(GetWorld(), GetActorLocation(), OuterDamageRadius, 12, FColor::Red, false, 0.5f);
-	if (InnerDamageRadius)
+	if (InnerDamageRadius > 0)
 	{
 		DrawDebugSphere(GetWorld(), GetActorLocation(), InnerDamageRadius, 12, FColor::Green, false, 0.5f);
 	}
 
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), OuterDamageRadius, UDamageType::StaticClass(),	{ GetOwner() }, this, GetController(), true);
+	if ((DistanceToPlayer >= InnerDamageRadius) && (DistanceToPlayer <= OuterDamageRadius))
+	{
+		PlayerPawn->TakeDamage(Damage, FDamageEvent(), GetController(), this);
+	}
+	//UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), OuterDamageRadius, UDamageType::StaticClass(),	{ GetOwner() }, this, GetController(), true);
 }
 
 void ASGCEnemy::OnDeath()
