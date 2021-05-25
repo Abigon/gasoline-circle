@@ -16,8 +16,6 @@ public:
 	bool CanPay(int32 Price) const { return CoinAmount >= Price; }
 	int32 GetCoinAmount() const { return CoinAmount; }
 	void AddCoins(int32 Coins);
-	void PainCoin(int32 Coins);
-
 
 	ASGCMainCharacter();
 	virtual void Tick(float DeltaTime) override;
@@ -61,8 +59,13 @@ protected:
 	void CameraZoomOut();
 
 	void OnDeath();
-private:
 
+private:
 	int32 CoinAmount = 0;
+
+	bool PayCoins(int32 Coins);
+	bool BuyBullets(int32 Coins, int32 Bullets);
+	void TryBuyBullets();
+
 
 };

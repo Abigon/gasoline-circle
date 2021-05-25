@@ -18,6 +18,7 @@ public:
 	virtual void StartFire();
 	void StopFire();
 	void Reload();
+	void AddCurrentBullets(int32 Bullets);
 
 	int32 GetCurrentTotalBullets() const;
 	int32 GetCurrentBulletsInClip() const;

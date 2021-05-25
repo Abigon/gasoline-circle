@@ -68,3 +68,8 @@ int32 USGCWeaponComponent::GetCurrentBulletsInClip() const
 
 	return 0;
 }
+
+void USGCWeaponComponent::AddCurrentBullets(int32 Bullets)
+{ 
+	CurrentWeapon->AddBullets(Bullets); 
+}

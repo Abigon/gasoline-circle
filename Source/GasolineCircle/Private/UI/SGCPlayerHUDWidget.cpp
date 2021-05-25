@@ -4,6 +4,7 @@
 #include "Character/SGCMainCharacter.h"
 #include "SGCComponents/SGCWeaponComponent.h"
 #include "SGCComponents/SGCHealthComponent.h"
+#include "UI/SGCBulletsSaleWidget.h"
 #include "UI/SGCPlayerHUDWidget.h"
 
 void USGCPlayerHUDWidget::NativeOnInitialized()

@@ -2,6 +2,7 @@
 
 
 #include "Character/SGCMainCharacter.h"
+#include "Core/SGCGameMode.h"
 #include "SGCComponents/SGCWeaponComponent.h"
 #include "SGCComponents/SGCHealthComponent.h"
 #include "Camera/CameraComponent.h"
@@ -69,6 +70,7 @@ void ASGCMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USGCWeaponComponent::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USGCWeaponComponent::StopFire);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &USGCWeaponComponent::Reload);
+	PlayerInputComponent->BindAction("BuyBullets", IE_Pressed, this, &ASGCMainCharacter::TryBuyBullets);
 }
 
 void ASGCMainCharacter::CameraZoomIn()
@@ -133,10 +135,36 @@ void ASGCMainCharacter::AddCoins(int32 Coins)
 	}
 }
 
-void ASGCMainCharacter::PainCoin(int32 Coins)
+bool ASGCMainCharacter::PayCoins(int32 Coins)
 {
 	if (CanPay(Coins))
 	{
 		CoinAmount -= Coins;
+		return true;
+	}
+	return false;
+}
+
+bool ASGCMainCharacter::BuyBullets(int32 Coins, int32 Bullets)
+{
+	if (PayCoins(Coins))
+	{
+		WeaponComponent->AddCurrentBullets(Bullets);
+		return true;
+	}
+	return false;
+}
+
+void ASGCMainCharacter::TryBuyBullets()
+{
+	if (!GetWorld()) return;
+	auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
+
+	if (!GameMode) return;
+	if (!GameMode->IsSale()) return;
+
+	if (BuyBullets(GameMode->GetCurrentPriceOfBullets(), GameMode->GetBulletsForSale()))
+	{
+		GameMode->EndSale();
 	}
 }
