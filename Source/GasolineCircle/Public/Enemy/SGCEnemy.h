@@ -15,6 +15,7 @@ public:
 	ASGCEnemy();
 	virtual void Tick(float DeltaTime) override;
 
+	FORCEINLINE class USGCHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))

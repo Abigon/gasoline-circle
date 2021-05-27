@@ -17,6 +17,8 @@ ASGCEnemy::ASGCEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
 	CollisionComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComponent"));
 //	CollisionComponent->InitSphereRadius(80.f);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -72,6 +74,7 @@ void ASGCEnemy::ApplyDamage()
 		PlayerPawn->TakeDamage(Damage, FDamageEvent(), GetController(), this);
 	}
 	//UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), OuterDamageRadius, UDamageType::StaticClass(),	{ GetOwner() }, this, GetController(), true);
+
 }
 
 void ASGCEnemy::OnDeath()
@@ -88,5 +91,5 @@ void ASGCEnemy::MoveToPlayer()
 {
 	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
-//	UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), PlayerPawn->GetActorLocation());
+	UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), PlayerPawn->GetActorLocation());
 }

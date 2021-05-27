@@ -6,8 +6,19 @@
 
 int32 USGCGameDataWidget::GetWaveSeconds() const
 {
-	if (!GetWorld()) return 0;
-	//auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
+	return GetWorld() ? GetWorld()->GetTimeSeconds() : 0;
+}
 
-	return GetWorld()->GetTimeSeconds();//GameMode ? GameMode->GetWaveTimerRate() : 0;
+FString USGCGameDataWidget::GetWaveInfo() const
+{
+	const auto World = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
+	if (!World)	return "0 / 0";
+	return FString::Printf(TEXT("Wave %i / %i"), World->GetCurrentWave(), World->GetTotalWaves());
+}
+
+FString USGCGameDataWidget::GetWaveLeftEnemies() const
+{
+	const auto World = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
+	if (!World)	return "Enemies: 0+";
+	return FString::Printf(TEXT("Enemies: %i"), World->GetWaveLeftEnemies());
 }

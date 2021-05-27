@@ -30,10 +30,7 @@ void USGCHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage, co
 void USGCHealthComponent::SetHealth(float NewHealth)
 {
 	const auto NextHealth = FMath::Clamp(NewHealth, 0.f, MaxHealth);
-	//const auto HealthDelta = NextHealth - Health;
-
 	Health = NextHealth;
-	//OnHealthChanged.Broadcast(Health, HealthDelta);
 }
 
 void USGCHealthComponent::ApplyDamage(float Damage)

@@ -2,9 +2,13 @@
 
 
 #include "Core/SGCGameMode.h"
-#include "Character/SGCMainCharacter.h"
-#include "UI/SGCHUD.h"
 #include "Core/SGCPlayerController.h"
+#include "Character/SGCMainCharacter.h"
+#include "Enemy/SGCEnemy.h"
+#include "Enemy/SGCEnemySpawnVolume.h"
+#include "SGCComponents/SGCHealthComponent.h"
+#include "UI/SGCHUD.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ASGCGameMode::ASGCGameMode()
@@ -19,10 +23,26 @@ void ASGCGameMode::StartPlay()
 {
 	Super::StartPlay();
 
+	CheckLevel();
+	
+	TotalWaves = WaveSpawnData.Num();
+	CurrentWave = 0;
+
 	StartWave();
 	EndSale();
 }
 
+void ASGCGameMode::GameOver()
+{
+
+}
+
+void ASGCGameMode::KillEnemy()
+{
+	WaveLeftEnemies--;
+}
+
+// Аукцион на продажу патронов
 void ASGCGameMode::StartSale()
 {
 	bIsSale = true;
@@ -54,9 +74,50 @@ void ASGCGameMode::SetCurrentPriceOfBullets()
 	}
 }
 
-void ASGCGameMode::GameOver()
+// Волны
+void ASGCGameMode::StartWave()
 {
+	CurrentWaveSpawnData = WaveSpawnData[CurrentWave];
+	for (auto EnemyData : CurrentWaveSpawnData.EnemiesData)
+	{
+		WaveLeftEnemies += EnemyData.EnemiesAmount;
+	}
+	SpawnWave();
+}
 
+void ASGCGameMode::SpawnWave()
+{
+	if (CurrentWaveSpawnData.EnemiesData.Num() == 0) return;
+
+	int32 MaxSpawn = ((CurrentWaveSpawnData.AmountEnemiesSpawnAtOnce != 0) && (CurrentWaveSpawnData.SecondsBetweenSpawn != 0)) ? CurrentWaveSpawnData.AmountEnemiesSpawnAtOnce : WaveLeftEnemies;
+
+	for (int32 EnemyNum = 0; EnemyNum < MaxSpawn; EnemyNum++)
+	{
+		int32 EnemyClassIndex = (CurrentWaveSpawnData.EnemiesData.Num() > 1) ? FMath::RandRange(0, CurrentWaveSpawnData.EnemiesData.Num() - 1) : 0;
+		
+		auto Enemy = GetEnemySpawnVolume()->SpawnEnemy(CurrentWaveSpawnData.EnemiesData[EnemyClassIndex].EnemyClass);
+		if (Enemy)
+		{
+			Enemy->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillEnemy);
+		}
+
+		CurrentWaveSpawnData.EnemiesData[EnemyClassIndex].EnemiesAmount--;
+		if (CurrentWaveSpawnData.EnemiesData[EnemyClassIndex].EnemiesAmount == 0) CurrentWaveSpawnData.EnemiesData.RemoveAt(EnemyClassIndex);
+		if (CurrentWaveSpawnData.EnemiesData.Num() == 0) break;
+	}
+
+	if (CurrentWaveSpawnData.EnemiesData.Num() > 0)
+	{
+		GetWorldTimerManager().SetTimer(WaveSpawnTimerHandle, this, &ASGCGameMode::SpawnWave, CurrentWaveSpawnData.SecondsBetweenSpawn, false);
+	}
+}
+
+ASGCEnemySpawnVolume* ASGCGameMode::GetEnemySpawnVolume()
+{
+	TArray<AActor*> EnemySpawnsArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGCEnemySpawnVolume::StaticClass(), EnemySpawnsArray);
+	int32 Index = FMath::RandRange(0, EnemySpawnsArray.Num() - 1);
+	return Cast<ASGCEnemySpawnVolume>(EnemySpawnsArray[Index]);
 }
 
 void ASGCGameMode::WaveOver()
@@ -65,18 +126,8 @@ void ASGCGameMode::WaveOver()
 
 	GetWorldTimerManager().ClearAllTimersForObject(this);
 	//GetWorldTimerManager().ClearTimer(NextSaleTimerHandle);
-	//GetWorldTimerManager().ClearTimer(GameWaveTimerHandle);
-}
 
-void ASGCGameMode::StartWave()
-{
-	//GetWorldTimerManager().SetTimer(GameWaveTimerHandle, nullptr, 1.f, true);
-}
-
-float ASGCGameMode::GetWaveTimerRate() const
-{
-	if (!GetWorld()) return 0;
-	return GetWorld()->GetTimeSeconds(); //GetWorldTimerManager().GetTimerRate(GameWaveTimerHandle);
+	//return GetWorld()->GetTimeSeconds();
 }
 
 bool ASGCGameMode::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)
@@ -95,4 +146,41 @@ bool ASGCGameMode::ClearPause()
 //		GetWorldTimerManager().UnPauseTimer(GameWaveTimerHandle);
 	}
 	return PauseCleared;
+}
+
+void ASGCGameMode::CheckLevel()
+{
+	checkf(WaveSpawnData.Num() > 0, TEXT("Count of Waves must be Above ZERO!!!!"));
+
+	TArray<AActor*> EnemySpawnsArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGCEnemySpawnVolume::StaticClass(), EnemySpawnsArray);
+
+	checkf(EnemySpawnsArray.Num() > 0, TEXT("SpawnVolumes must be Above ZERO!!!!"));
+	
+	int32 CountEnemiesSpawning = 0;	
+	for (auto EnemySpawn : EnemySpawnsArray)
+	{
+		auto SpawnVolume = Cast<ASGCEnemySpawnVolume>(EnemySpawn);
+		CountEnemiesSpawning += SpawnVolume->GetSpawningCount();
+	}
+	
+	int32 MaxEnemiesInWave = 0;
+	for (auto Wave : WaveSpawnData)
+	{
+		int32 TempEmeniesAmount = 0;
+		for (auto EnemyData : Wave.EnemiesData)
+		{
+			TempEmeniesAmount += EnemyData.EnemiesAmount;
+			if (!EnemyData.EnemyClass)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Enemy Class Must Be Setup"));
+			}
+		}
+		MaxEnemiesInWave = TempEmeniesAmount > MaxEnemiesInWave ? TempEmeniesAmount : MaxEnemiesInWave;
+	}
+
+	if (MaxEnemiesInWave > CountEnemiesSpawning)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Max Enemies Amount In One Wave MORE Than EnemySpawnVolumes In World Can Spawn Enemies!!!!!"));
+	}
 }

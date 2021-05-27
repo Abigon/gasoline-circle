@@ -50,5 +50,4 @@ void ASGCProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* 
 	if (!DamagedActor) return;
 
 	DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), nullptr , this);
-
 }
