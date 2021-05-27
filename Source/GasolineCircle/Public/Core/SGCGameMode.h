@@ -55,7 +55,7 @@ public:
 	int32 GetBulletsForSale() const { return BulletsForSale; }
 	void EndSale();
 
-	int32 GetCurrentWave() const { return CurrentWave+1; }
+	int32 GetCurrentWave() const { return CurrentWave + 1; }
 	int32 GetTotalWaves() const { return TotalWaves; }
 	int32 GetWaveLeftEnemies() const { return WaveLeftEnemies; }
 
@@ -109,4 +109,6 @@ private:
 	void SpawnWave();
 	class ASGCEnemySpawnVolume* GetEnemySpawnVolume();
 	void CheckLevel();
+
+
 };

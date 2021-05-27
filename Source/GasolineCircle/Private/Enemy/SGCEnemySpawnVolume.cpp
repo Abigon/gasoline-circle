@@ -14,7 +14,7 @@ ASGCEnemySpawnVolume::ASGCEnemySpawnVolume()
 void ASGCEnemySpawnVolume::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	Reset();
 }
 
 ASGCEnemy* ASGCEnemySpawnVolume::SpawnEnemy(TSubclassOf<class ASGCEnemy> EnemyClass)

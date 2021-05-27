@@ -19,6 +19,16 @@ void USGCWeaponComponent::BeginPlay()
 	SpawnWeapon();
 }
 
+void USGCWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	CurrentWeapon->Destroy();
+	CurrentWeapon = nullptr;
+
+	Super::EndPlay(EndPlayReason);
+}
+
+
 void USGCWeaponComponent::SpawnWeapon()
 {
 	auto Character = Cast<ACharacter>(GetOwner());

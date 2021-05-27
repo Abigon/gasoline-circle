@@ -91,5 +91,8 @@ void ASGCEnemy::MoveToPlayer()
 {
 	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
-	UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), PlayerPawn->GetActorLocation());
+	if (PlayerPawn)
+	{
+		UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), PlayerPawn->GetActorLocation());
+	}
 }

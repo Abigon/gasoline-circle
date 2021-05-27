@@ -32,9 +32,8 @@ protected:
 	UPROPERTY()
 	ASGCWeapon* CurrentWeapon = nullptr;
 
-
-
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void SpawnWeapon();
 		

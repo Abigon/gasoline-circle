@@ -29,49 +29,17 @@ void ASGCGameMode::StartPlay()
 	CurrentWave = 0;
 
 	StartWave();
-	EndSale();
 }
 
 void ASGCGameMode::GameOver()
 {
-
+	UE_LOG(LogTemp, Warning, TEXT("GameOver"));
 }
 
 void ASGCGameMode::KillEnemy()
 {
 	WaveLeftEnemies--;
-}
-
-// Аукцион на продажу патронов
-void ASGCGameMode::StartSale()
-{
-	bIsSale = true;
-	GetWorldTimerManager().ClearTimer(NextSaleTimerHandle);
-
-	CurrentPriceOfBullets = FMath::RandBool() ? PriceOfBulletsMax : PriceOfBulletsMin;
-	BulletsForSale = FMath::RandBool() ? BulletsForSaleMax : BulletsForSaleMin;
-
-	OnStartBulletsSale.Broadcast(BulletsForSale);
-	GetWorldTimerManager().SetTimer(SaleCountdownTimerHandle, this, &ASGCGameMode::SetCurrentPriceOfBullets, StepSecondsOfCountdown, true);
-}
-
-void ASGCGameMode::EndSale()
-{
-	bIsSale = false;
-	GetWorldTimerManager().ClearTimer(SaleCountdownTimerHandle);
-	OnFinishBulletsSale.Broadcast();
-
-	int32 SecondsToNextSale = FMath::RandRange(SecondsToSaleMin, SecondsToSaleMax);
-	GetWorldTimerManager().SetTimer(NextSaleTimerHandle, this, &ASGCGameMode::StartSale, SecondsToNextSale, false);
-}
-
-void ASGCGameMode::SetCurrentPriceOfBullets()
-{
-	CurrentPriceOfBullets -= StepPriceOfCountdown;
-	if (CurrentPriceOfBullets == 0)
-	{
-		GetWorldTimerManager().ClearTimer(SaleCountdownTimerHandle);
-	}
+	if (WaveLeftEnemies == 0) WaveOver();
 }
 
 // Волны
@@ -83,6 +51,7 @@ void ASGCGameMode::StartWave()
 		WaveLeftEnemies += EnemyData.EnemiesAmount;
 	}
 	SpawnWave();
+	EndSale();
 }
 
 void ASGCGameMode::SpawnWave()
@@ -122,10 +91,27 @@ ASGCEnemySpawnVolume* ASGCGameMode::GetEnemySpawnVolume()
 
 void ASGCGameMode::WaveOver()
 {
+	UE_LOG(LogTemp, Warning, TEXT("WaveOver"));
 	EndSale();
-
 	GetWorldTimerManager().ClearAllTimersForObject(this);
-	//GetWorldTimerManager().ClearTimer(NextSaleTimerHandle);
+
+	CurrentWave++;
+	if (CurrentWave < TotalWaves)
+	{
+		Reset();
+		//auto PlayerController = Cast<ASGCPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+		//if (PlayerController && PlayerController->GetPawn())
+		//{
+		//	PlayerController->GetPawn()->Reset();
+		//	RestartPlayer(PlayerController);
+		//}
+		StartWave();
+	}
+	else
+	{
+		GameOver();
+	}
+
 
 	//return GetWorld()->GetTimeSeconds();
 }
@@ -134,7 +120,9 @@ bool ASGCGameMode::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegat
 {
 	const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
 
-//	GetWorldTimerManager().PauseTimer(GameWaveTimerHandle);
+	//GetWorldTimerManager().PauseTimer(WaveSpawnTimerHandle);
+	//GetWorldTimerManager().PauseTimer(SaleCountdownTimerHandle);
+	//GetWorldTimerManager().PauseTimer(NextSaleTimerHandle);
 	return PauseSet;
 }
 
@@ -143,7 +131,9 @@ bool ASGCGameMode::ClearPause()
 	const auto PauseCleared = Super::ClearPause();
 	if (PauseCleared)
 	{
-//		GetWorldTimerManager().UnPauseTimer(GameWaveTimerHandle);
+		//GetWorldTimerManager().UnPauseTimer(WaveSpawnTimerHandle);
+		//GetWorldTimerManager().UnPauseTimer(SaleCountdownTimerHandle);
+		//GetWorldTimerManager().UnPauseTimer(NextSaleTimerHandle);
 	}
 	return PauseCleared;
 }
@@ -182,5 +172,37 @@ void ASGCGameMode::CheckLevel()
 	if (MaxEnemiesInWave > CountEnemiesSpawning)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Max Enemies Amount In One Wave MORE Than EnemySpawnVolumes In World Can Spawn Enemies!!!!!"));
+	}
+}
+
+// Аукцион на продажу патронов
+void ASGCGameMode::StartSale()
+{
+	bIsSale = true;
+	GetWorldTimerManager().ClearTimer(NextSaleTimerHandle);
+
+	CurrentPriceOfBullets = FMath::RandBool() ? PriceOfBulletsMax : PriceOfBulletsMin;
+	BulletsForSale = FMath::RandBool() ? BulletsForSaleMax : BulletsForSaleMin;
+
+	OnStartBulletsSale.Broadcast(BulletsForSale);
+	GetWorldTimerManager().SetTimer(SaleCountdownTimerHandle, this, &ASGCGameMode::SetCurrentPriceOfBullets, StepSecondsOfCountdown, true);
+}
+
+void ASGCGameMode::EndSale()
+{
+	bIsSale = false;
+	GetWorldTimerManager().ClearTimer(SaleCountdownTimerHandle);
+	OnFinishBulletsSale.Broadcast();
+
+	int32 SecondsToNextSale = FMath::RandRange(SecondsToSaleMin, SecondsToSaleMax);
+	GetWorldTimerManager().SetTimer(NextSaleTimerHandle, this, &ASGCGameMode::StartSale, SecondsToNextSale, false);
+}
+
+void ASGCGameMode::SetCurrentPriceOfBullets()
+{
+	CurrentPriceOfBullets -= StepPriceOfCountdown;
+	if (CurrentPriceOfBullets == 0)
+	{
+		GetWorldTimerManager().ClearTimer(SaleCountdownTimerHandle);
 	}
 }

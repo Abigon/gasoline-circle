@@ -55,7 +55,7 @@ void ASGCWeapon::MakeShot()
 
 void ASGCWeapon::AddBullets(int32 NewBullets)
 {
-	TotalBullets = FMath::Max(TotalBullets + NewBullets, MaxBullets);
+	TotalBullets = FMath::Min(TotalBullets + NewBullets, MaxBullets);
 }
 
 void ASGCWeapon::Reload()
