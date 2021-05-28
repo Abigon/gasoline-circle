@@ -60,6 +60,7 @@ public:
 	int32 GetWaveLeftEnemies() const { return WaveLeftEnemies; }
 
 	void KillEnemy();
+	void KillPlayer();
 
 
 protected:

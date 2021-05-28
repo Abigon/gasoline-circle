@@ -9,6 +9,7 @@
 #include "SGCComponents/SGCHealthComponent.h"
 #include "UI/SGCHUD.h"
 #include "Kismet/GameplayStatics.h"
+#include "EngineUtils.h"
 
 
 ASGCGameMode::ASGCGameMode()
@@ -28,18 +29,41 @@ void ASGCGameMode::StartPlay()
 	TotalWaves = WaveSpawnData.Num();
 	CurrentWave = 0;
 
+	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	if (PlayerPawn)
+	{
+		PlayerPawn->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillPlayer);
+	}
+
 	StartWave();
 }
 
 void ASGCGameMode::GameOver()
 {
-	UE_LOG(LogTemp, Warning, TEXT("GameOver"));
+	EndSale();
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+
+	for (auto Pawn : TActorRange<APawn>(GetWorld()))
+	{
+		if (Pawn)
+		{
+			Pawn->TurnOff();
+			Pawn->DisableInput(nullptr);
+		}
+	}
+
 }
 
 void ASGCGameMode::KillEnemy()
 {
 	WaveLeftEnemies--;
 	if (WaveLeftEnemies == 0) WaveOver();
+}
+
+void ASGCGameMode::KillPlayer()
+{
+	GameOver();
 }
 
 // Волны
