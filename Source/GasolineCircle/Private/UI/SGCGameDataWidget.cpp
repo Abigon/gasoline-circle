@@ -4,11 +4,6 @@
 #include "UI/SGCGameDataWidget.h"
 #include "Core/SGCGameMode.h"
 
-int32 USGCGameDataWidget::GetWaveSeconds() const
-{
-	return GetWorld() ? GetWorld()->GetTimeSeconds() : 0;
-}
-
 FString USGCGameDataWidget::GetWaveInfo() const
 {
 	const auto World = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());

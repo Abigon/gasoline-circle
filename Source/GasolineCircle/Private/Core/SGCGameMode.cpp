@@ -50,6 +50,15 @@ void ASGCGameMode::StartWave()
 	{
 		WaveLeftEnemies += EnemyData.EnemiesAmount;
 	}
+
+	TArray<AActor*> EnemySpawnsArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGCEnemySpawnVolume::StaticClass(), EnemySpawnsArray);
+	for (auto EnemySpawn : EnemySpawnsArray)
+	{
+		auto SpawnVolume = Cast<ASGCEnemySpawnVolume>(EnemySpawn);
+		if (SpawnVolume) SpawnVolume->Reset();
+	}
+
 	SpawnWave();
 	EndSale();
 }
@@ -68,9 +77,9 @@ void ASGCGameMode::SpawnWave()
 		if (Enemy)
 		{
 			Enemy->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillEnemy);
+			CurrentWaveSpawnData.EnemiesData[EnemyClassIndex].EnemiesAmount--;
 		}
 
-		CurrentWaveSpawnData.EnemiesData[EnemyClassIndex].EnemiesAmount--;
 		if (CurrentWaveSpawnData.EnemiesData[EnemyClassIndex].EnemiesAmount == 0) CurrentWaveSpawnData.EnemiesData.RemoveAt(EnemyClassIndex);
 		if (CurrentWaveSpawnData.EnemiesData.Num() == 0) break;
 	}
@@ -83,10 +92,22 @@ void ASGCGameMode::SpawnWave()
 
 ASGCEnemySpawnVolume* ASGCGameMode::GetEnemySpawnVolume()
 {
-	TArray<AActor*> EnemySpawnsArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGCEnemySpawnVolume::StaticClass(), EnemySpawnsArray);
+	TArray<AActor*> EnemySpawnsActorArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGCEnemySpawnVolume::StaticClass(), EnemySpawnsActorArray);
+
+	TArray<ASGCEnemySpawnVolume*> EnemySpawnsArray;
+
+	for (auto EnemySpawnActor : EnemySpawnsActorArray)
+	{
+		auto SpawnVolume = Cast<ASGCEnemySpawnVolume>(EnemySpawnActor);
+		if (SpawnVolume && SpawnVolume->IsCanSpawn())
+		{
+			EnemySpawnsArray.Add(SpawnVolume);
+		}
+	}
+
 	int32 Index = FMath::RandRange(0, EnemySpawnsArray.Num() - 1);
-	return Cast<ASGCEnemySpawnVolume>(EnemySpawnsArray[Index]);
+	return EnemySpawnsArray[Index];
 }
 
 void ASGCGameMode::WaveOver()
@@ -98,22 +119,18 @@ void ASGCGameMode::WaveOver()
 	CurrentWave++;
 	if (CurrentWave < TotalWaves)
 	{
-		Reset();
-		//auto PlayerController = Cast<ASGCPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-		//if (PlayerController && PlayerController->GetPawn())
-		//{
-		//	PlayerController->GetPawn()->Reset();
-		//	RestartPlayer(PlayerController);
-		//}
+		auto PlayerController = Cast<ASGCPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+		if (PlayerController && PlayerController->GetPawn())
+		{
+			PlayerController->GetPawn()->Reset();
+			RestartPlayer(PlayerController);
+		}
 		StartWave();
 	}
 	else
 	{
 		GameOver();
 	}
-
-
-	//return GetWorld()->GetTimeSeconds();
 }
 
 bool ASGCGameMode::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)

@@ -14,10 +14,8 @@ class GASOLINECIRCLE_API ASGCEnemySpawnVolume : public AActor
 public:	
 	ASGCEnemySpawnVolume();
 
-	bool CanSpawn() const { return SpawningCount > 0; }
-
+	bool IsCanSpawn() const { return SpawningCount > 0; }
 	int32 GetSpawningCount() const { return SpawningCount; }
-
 	class ASGCEnemy* SpawnEnemy(TSubclassOf<class ASGCEnemy> EnemyClass);
 
 	void Reset() { SpawningCount = DefaultSpawningCount; }

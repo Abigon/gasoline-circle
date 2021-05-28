@@ -19,13 +19,12 @@ void ASGCEnemySpawnVolume::BeginPlay()
 
 ASGCEnemy* ASGCEnemySpawnVolume::SpawnEnemy(TSubclassOf<class ASGCEnemy> EnemyClass)
 {
-	if (!CanSpawn() || !GetWorld()) return nullptr;
+	if (!IsCanSpawn() || !GetWorld()) return nullptr;
 	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AActor* Actor = GetWorld()->SpawnActor<AActor>(EnemyClass, GetActorLocation(), GetActorRotation(), SpawnParams);
 	if (Actor) SpawningCount--;
-	if (SpawningCount == 0) Destroy();
 	return Cast<ASGCEnemy>(Actor);
 }

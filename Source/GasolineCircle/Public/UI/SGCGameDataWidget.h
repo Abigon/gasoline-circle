@@ -14,8 +14,6 @@ class GASOLINECIRCLE_API USGCGameDataWidget : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	int32 GetWaveSeconds() const;
-	UFUNCTION(BlueprintCallable, Category = "UI")
 	FString GetWaveLeftEnemies() const;
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	FString GetWaveInfo() const;
