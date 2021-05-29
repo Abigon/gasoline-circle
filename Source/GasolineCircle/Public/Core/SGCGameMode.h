@@ -96,6 +96,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave Data")
 	TArray<FWaveSpawnData> WaveSpawnData;
 
+
 private:
 	FTimerHandle NextSaleTimerHandle;
 	FTimerHandle SaleCountdownTimerHandle;

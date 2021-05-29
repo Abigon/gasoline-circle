@@ -92,6 +92,19 @@ void ASGCGameMode::StartWave()
 		if (SpawnVolume) SpawnVolume->Reset();
 	}
 
+	auto PlayerController = Cast<ASGCPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (PlayerController && PlayerController->GetPawn())
+	{
+		PlayerController->GetPawn()->Reset();
+		RestartPlayer(PlayerController);
+		auto PlayerPawn = Cast<ASGCMainCharacter>(PlayerController->GetPawn());
+		if (PlayerPawn)
+		{
+			PlayerPawn->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillPlayer);
+		}
+	}
+
+
 	SpawnWave();
 	EndSale();
 }
@@ -128,11 +141,13 @@ ASGCEnemySpawnVolume* ASGCGameMode::GetEnemySpawnVolume()
 {
 	if (!GetWorld()) return nullptr;
 
+	bool IsBossWave = TotalWaves == (CurrentWave + 1);
+
 	TArray<ASGCEnemySpawnVolume*> EnemySpawnsArray;
 
 	for (auto EnemySpawnActor : TActorRange <ASGCEnemySpawnVolume>(GetWorld()))
 	{
-		if (EnemySpawnActor && EnemySpawnActor->IsCanSpawn())
+		if (EnemySpawnActor && EnemySpawnActor->IsCanSpawn() && (IsBossWave == EnemySpawnActor->IsCanSpawnBoss()))
 		{
 			EnemySpawnsArray.Add(EnemySpawnActor);
 		}
@@ -150,17 +165,6 @@ void ASGCGameMode::WaveOver()
 	CurrentWave++;
 	if (CurrentWave < TotalWaves)
 	{
-		auto PlayerController = Cast<ASGCPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-		if (PlayerController && PlayerController->GetPawn())
-		{
-			PlayerController->GetPawn()->Reset();
-			RestartPlayer(PlayerController);
-			auto PlayerPawn = Cast<ASGCMainCharacter>(PlayerController->GetPawn());
-			if (PlayerPawn)
-			{
-				PlayerPawn->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillPlayer);
-			}
-		}
 		StartWave();
 	}
 	else
