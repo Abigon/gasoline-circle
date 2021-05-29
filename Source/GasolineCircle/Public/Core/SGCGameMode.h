@@ -6,6 +6,16 @@
 #include "GameFramework/GameModeBase.h"
 #include "SGCGameMode.generated.h"
 
+UENUM(Blueprinttype)
+enum class ESGCGameState : uint8
+{
+	EGS_Waiting UMETA(DisplayName = "Game Waiting To Start"),
+	EGS_InProgress UMETA(DisplayName = "Game In Progress"),
+	EGS_Pause UMETA(DisplayName = "Pause Game"),
+	EGS_GameOverWin UMETA(DisplayName = "Win The Game"),
+	EGS_GameOverLose UMETA(DisplayName = "Lose The Game "),
+	EGS_MAX UMETA(DisplayName = "DefaultMAX")
+};
 
 USTRUCT(BlueprintType)
 struct FEnemySpawnData
@@ -33,6 +43,7 @@ struct FWaveSpawnData
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnStartBulletsSaleSignature, int32);
 DECLARE_MULTICAST_DELEGATE(FOnFinishBulletsSaleSignature);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStateChangedSignature, ESGCGameState);
 
 UCLASS()
 class GASOLINECIRCLE_API ASGCGameMode : public AGameModeBase
@@ -45,6 +56,7 @@ public:
 
 	FOnStartBulletsSaleSignature OnStartBulletsSale;
 	FOnFinishBulletsSaleSignature OnFinishBulletsSale;
+	FOnGameStateChangedSignature OnGameStateChanged;
 
 	virtual void StartPlay() override;
 	virtual bool SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate = FCanUnpause()) override;
@@ -100,10 +112,12 @@ private:
 
 	FWaveSpawnData CurrentWaveSpawnData;
 
+	ESGCGameState CurrentGameState = ESGCGameState::EGS_Waiting;
+
 	void StartSale();
 	void SetCurrentPriceOfBullets();
 
-	void GameOver();
+	void GameOver(bool bIsWin);
 	void WaveOver();
 	void StartWave();
 
@@ -111,5 +125,6 @@ private:
 	class ASGCEnemySpawnVolume* GetEnemySpawnVolume();
 	void CheckLevel();
 
+	void SetGameState(ESGCGameState State);
 
 };

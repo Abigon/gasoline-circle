@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/SGCGameMode.h"
 #include "GameFramework/PlayerController.h"
 #include "SGCPlayerController.generated.h"
 
@@ -15,4 +16,11 @@ class GASOLINECIRCLE_API ASGCPlayerController : public APlayerController
 public:
 	ASGCPlayerController();
 	
+protected:
+	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
+
+private:
+	void OnPauseGame();
+	void OnGameStateChanged(ESGCGameState State);
 };

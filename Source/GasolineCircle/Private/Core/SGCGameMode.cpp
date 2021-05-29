@@ -36,10 +36,12 @@ void ASGCGameMode::StartPlay()
 		PlayerPawn->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillPlayer);
 	}
 
+	SetGameState(ESGCGameState::EGS_InProgress);
+
 	StartWave();
 }
 
-void ASGCGameMode::GameOver()
+void ASGCGameMode::GameOver(bool bIsWin)
 {
 	EndSale();
 	GetWorldTimerManager().ClearAllTimersForObject(this);
@@ -53,6 +55,16 @@ void ASGCGameMode::GameOver()
 		}
 	}
 
+	if (bIsWin)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Win"));
+		SetGameState(ESGCGameState::EGS_GameOverWin);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Lose"));
+		SetGameState(ESGCGameState::EGS_GameOverLose);
+	}
 }
 
 void ASGCGameMode::KillEnemy()
@@ -63,7 +75,7 @@ void ASGCGameMode::KillEnemy()
 
 void ASGCGameMode::KillPlayer()
 {
-	GameOver();
+	GameOver(false);
 }
 
 // Волны
@@ -75,11 +87,8 @@ void ASGCGameMode::StartWave()
 		WaveLeftEnemies += EnemyData.EnemiesAmount;
 	}
 
-	TArray<AActor*> EnemySpawnsArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGCEnemySpawnVolume::StaticClass(), EnemySpawnsArray);
-	for (auto EnemySpawn : EnemySpawnsArray)
+	for (auto SpawnVolume : TActorRange<ASGCEnemySpawnVolume>(GetWorld()))
 	{
-		auto SpawnVolume = Cast<ASGCEnemySpawnVolume>(EnemySpawn);
 		if (SpawnVolume) SpawnVolume->Reset();
 	}
 
@@ -97,7 +106,8 @@ void ASGCGameMode::SpawnWave()
 	{
 		int32 EnemyClassIndex = (CurrentWaveSpawnData.EnemiesData.Num() > 1) ? FMath::RandRange(0, CurrentWaveSpawnData.EnemiesData.Num() - 1) : 0;
 		
-		auto Enemy = GetEnemySpawnVolume()->SpawnEnemy(CurrentWaveSpawnData.EnemiesData[EnemyClassIndex].EnemyClass);
+		auto SpawnVolume = GetEnemySpawnVolume();
+		auto Enemy = SpawnVolume ? SpawnVolume->SpawnEnemy(CurrentWaveSpawnData.EnemiesData[EnemyClassIndex].EnemyClass) : nullptr;
 		if (Enemy)
 		{
 			Enemy->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillEnemy);
@@ -116,17 +126,15 @@ void ASGCGameMode::SpawnWave()
 
 ASGCEnemySpawnVolume* ASGCGameMode::GetEnemySpawnVolume()
 {
-	TArray<AActor*> EnemySpawnsActorArray;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGCEnemySpawnVolume::StaticClass(), EnemySpawnsActorArray);
+	if (!GetWorld()) return nullptr;
 
 	TArray<ASGCEnemySpawnVolume*> EnemySpawnsArray;
 
-	for (auto EnemySpawnActor : EnemySpawnsActorArray)
+	for (auto EnemySpawnActor : TActorRange <ASGCEnemySpawnVolume>(GetWorld()))
 	{
-		auto SpawnVolume = Cast<ASGCEnemySpawnVolume>(EnemySpawnActor);
-		if (SpawnVolume && SpawnVolume->IsCanSpawn())
+		if (EnemySpawnActor && EnemySpawnActor->IsCanSpawn())
 		{
-			EnemySpawnsArray.Add(SpawnVolume);
+			EnemySpawnsArray.Add(EnemySpawnActor);
 		}
 	}
 
@@ -136,7 +144,6 @@ ASGCEnemySpawnVolume* ASGCGameMode::GetEnemySpawnVolume()
 
 void ASGCGameMode::WaveOver()
 {
-	UE_LOG(LogTemp, Warning, TEXT("WaveOver"));
 	EndSale();
 	GetWorldTimerManager().ClearAllTimersForObject(this);
 
@@ -148,12 +155,17 @@ void ASGCGameMode::WaveOver()
 		{
 			PlayerController->GetPawn()->Reset();
 			RestartPlayer(PlayerController);
+			auto PlayerPawn = Cast<ASGCMainCharacter>(PlayerController->GetPawn());
+			if (PlayerPawn)
+			{
+				PlayerPawn->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillPlayer);
+			}
 		}
 		StartWave();
 	}
 	else
 	{
-		GameOver();
+		GameOver(true);
 	}
 }
 
@@ -161,6 +173,10 @@ bool ASGCGameMode::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegat
 {
 	const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
 
+	if (PauseSet)
+	{
+		SetGameState(ESGCGameState::EGS_Pause);
+	}
 	//GetWorldTimerManager().PauseTimer(WaveSpawnTimerHandle);
 	//GetWorldTimerManager().PauseTimer(SaleCountdownTimerHandle);
 	//GetWorldTimerManager().PauseTimer(NextSaleTimerHandle);
@@ -172,6 +188,7 @@ bool ASGCGameMode::ClearPause()
 	const auto PauseCleared = Super::ClearPause();
 	if (PauseCleared)
 	{
+		SetGameState(ESGCGameState::EGS_InProgress);
 		//GetWorldTimerManager().UnPauseTimer(WaveSpawnTimerHandle);
 		//GetWorldTimerManager().UnPauseTimer(SaleCountdownTimerHandle);
 		//GetWorldTimerManager().UnPauseTimer(NextSaleTimerHandle);
@@ -179,6 +196,13 @@ bool ASGCGameMode::ClearPause()
 	return PauseCleared;
 }
 
+void ASGCGameMode::SetGameState(ESGCGameState State)
+{
+	if (CurrentGameState == State) return;
+
+	CurrentGameState = State;
+	OnGameStateChanged.Broadcast(CurrentGameState);
+}
 void ASGCGameMode::CheckLevel()
 {
 	checkf(WaveSpawnData.Num() > 0, TEXT("Count of Waves must be Above ZERO!!!!"));
@@ -247,3 +271,4 @@ void ASGCGameMode::SetCurrentPriceOfBullets()
 		GetWorldTimerManager().ClearTimer(SaleCountdownTimerHandle);
 	}
 }
+
