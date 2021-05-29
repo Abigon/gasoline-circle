@@ -3,6 +3,7 @@
 
 #include "Character/SGCMainCharacter.h"
 #include "Enemy/SGCEnemy.h"
+#include "Items/SGCCoin.h"
 #include "SGCComponents/SGCHealthComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Components/SphereComponent.h"
@@ -47,7 +48,7 @@ void ASGCEnemy::BeginPlay()
 	HealthComponent->OnDeath.AddUObject(this, &ASGCEnemy::OnDeath);
 
 	GetWorldTimerManager().SetTimer(DamageTimerHandle, this, &ASGCEnemy::ApplyDamage, TimeBetweenDamage, true);
-
+	GetWorldTimerManager().SetTimer(CoinSpawnHandle, this, &ASGCEnemy::SpawnCoins, TimeBetweenCoinsSpawn, true);
 }
 
 void ASGCEnemy::Tick(float DeltaTime)
@@ -93,5 +94,24 @@ void ASGCEnemy::MoveToPlayer()
 	if (PlayerPawn)
 	{
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), PlayerPawn->GetActorLocation());
+	}
+}
+
+void ASGCEnemy::SpawnCoins()
+{
+	if (!CoinsClass) return;
+
+	bool IsCoinSpawn = FMath::RandRange(0.f, 100.f) <= ChanceToCoinsSpawnPercent;
+	if (!IsCoinSpawn) return;
+
+	int32 CoinsAmount = FMath::RandBool() ? CoinsSpawnMax : CoinsSpawnMin;
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	auto Actor = Cast<ASGCCoin>(GetWorld()->SpawnActor<AActor>(CoinsClass, GetActorLocation(), FRotator(0), SpawnParams));
+	if (Actor)
+	{
+		Actor->SetAmount(CoinsAmount);
 	}
 }

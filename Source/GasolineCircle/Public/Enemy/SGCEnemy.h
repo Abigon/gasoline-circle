@@ -19,13 +19,11 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
-//	class USphereComponent* CollisionComponent;
 	class UBoxComponent* CollisionComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	class USGCHealthComponent* HealthComponent;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	class UFloatingPawnMovement* MovementComponent;
 	
@@ -42,13 +40,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FX")
 	class UParticleSystem* DeathParticles;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Spawn")
+	TSubclassOf<class ASGCCoin> CoinsClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Spawn")
+	float TimeBetweenCoinsSpawn = 3.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Spawn", meta = (ClampMin = "0", ClampMax = "100.0"))
+	float ChanceToCoinsSpawnPercent = 30.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Spawn")
+	int32 CoinsSpawnMin = 5;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Spawn")
+	int32 CoinsSpawnMax = 10;
+
+
 	virtual void BeginPlay() override;
 
 	void ApplyDamage();
 	void OnDeath();
 	void MoveToPlayer();
+	void SpawnCoins();
 
 private:
 	FTimerHandle DamageTimerHandle;
-
+	FTimerHandle CoinSpawnHandle;
 };
