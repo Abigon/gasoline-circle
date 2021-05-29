@@ -4,18 +4,13 @@
 #include "Character/SGCMainCharacter.h"
 #include "SGCComponents/SGCWeaponComponent.h"
 #include "SGCComponents/SGCHealthComponent.h"
-#include "UI/SGCBulletsSaleWidget.h"
 #include "UI/SGCPlayerHUDWidget.h"
+
+
 
 void USGCPlayerHUDWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
-	//if (GetOwningPlayer())
-	//{
-	//	GetOwningPlayer()->GetOnNewPawnNotifier().AddUObject(this, &USTUPlayerHUDWidget::OnNewPawn);
-	//	OnNewPawn(GetOwningPlayerPawn());
-	//}
 }
 
 FString USGCPlayerHUDWidget::FormatBullets(int32 BulletsNum) const

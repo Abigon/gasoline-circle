@@ -12,7 +12,7 @@ void USGCBulletsSaleWidget::NativeOnInitialized()
 
 	if (!GetWorld()) return;
 	auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
-	if (GameMode) 
+	if (GameMode)
 	{
 		GameMode->OnStartBulletsSale.AddUObject(this, &USGCBulletsSaleWidget::OnStartSale);
 		GameMode->OnFinishBulletsSale.AddUObject(this, &USGCBulletsSaleWidget::OnFinishSale);

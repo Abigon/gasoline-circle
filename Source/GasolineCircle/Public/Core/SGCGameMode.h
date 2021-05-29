@@ -44,6 +44,8 @@ struct FWaveSpawnData
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnStartBulletsSaleSignature, int32);
 DECLARE_MULTICAST_DELEGATE(FOnFinishBulletsSaleSignature);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStateChangedSignature, ESGCGameState);
+DECLARE_MULTICAST_DELEGATE(FOnStartWaveTimeCountdownSignature);
+DECLARE_MULTICAST_DELEGATE(FOnWaveStartSignature);
 
 UCLASS()
 class GASOLINECIRCLE_API ASGCGameMode : public AGameModeBase
@@ -57,6 +59,8 @@ public:
 	FOnStartBulletsSaleSignature OnStartBulletsSale;
 	FOnFinishBulletsSaleSignature OnFinishBulletsSale;
 	FOnGameStateChangedSignature OnGameStateChanged;
+	FOnStartWaveTimeCountdownSignature OnStartWaveTimeCountdown;
+	FOnWaveStartSignature OnWaveStart;
 
 	virtual void StartPlay() override;
 	virtual bool SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate = FCanUnpause()) override;
@@ -69,6 +73,8 @@ public:
 
 	int32 GetCurrentWave() const { return CurrentWave + 1; }
 	int32 GetTotalWaves() const { return TotalWaves; }
+
+	float GetWaveStartCountdownTimer() const { return GetWorldTimerManager().GetTimerRemaining(WaveStartCountdownTimerHandle); }
 	int32 GetWaveLeftEnemies() const { return WaveLeftEnemies; }
 
 	void KillEnemy();
@@ -95,6 +101,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave Data")
 	TArray<FWaveSpawnData> WaveSpawnData;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave Data")
+	float SecondsCountdownToWaveStart = 5.f;
 
 
 private:
@@ -116,16 +124,17 @@ private:
 	ESGCGameState CurrentGameState = ESGCGameState::EGS_Waiting;
 
 	void StartSale();
+	void StopSale();
 	void SetCurrentPriceOfBullets();
 
 	void GameOver(bool bIsWin);
 	void WaveOver();
 	void StartWave();
+	void StopWave();
 
 	void SpawnWave();
 	class ASGCEnemySpawnVolume* GetEnemySpawnVolume();
 	void CheckLevel();
 
 	void SetGameState(ESGCGameState State);
-
 };

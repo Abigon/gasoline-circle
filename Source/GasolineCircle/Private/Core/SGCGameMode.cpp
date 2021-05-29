@@ -17,7 +17,6 @@ ASGCGameMode::ASGCGameMode()
 	DefaultPawnClass = ASGCMainCharacter::StaticClass();
 	PlayerControllerClass = ASGCPlayerController::StaticClass();
 	HUDClass = ASGCHUD::StaticClass();
-//	PlayerStateClass = ASTUPlayerState::StaticClass();
 }
 
 void ASGCGameMode::StartPlay()
@@ -29,31 +28,16 @@ void ASGCGameMode::StartPlay()
 	TotalWaves = WaveSpawnData.Num();
 	CurrentWave = 0;
 
-	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
-
-	if (PlayerPawn)
-	{
-		PlayerPawn->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillPlayer);
-	}
-
 	SetGameState(ESGCGameState::EGS_InProgress);
 
-	StartWave();
+	StopWave();
+	OnStartWaveTimeCountdown.Broadcast();
+	GetWorldTimerManager().SetTimer(WaveStartCountdownTimerHandle, this, &ASGCGameMode::StartWave, SecondsCountdownToWaveStart, false); 
 }
 
 void ASGCGameMode::GameOver(bool bIsWin)
 {
-	EndSale();
-	GetWorldTimerManager().ClearAllTimersForObject(this);
-
-	for (auto Pawn : TActorRange<APawn>(GetWorld()))
-	{
-		if (Pawn)
-		{
-			Pawn->TurnOff();
-			Pawn->DisableInput(nullptr);
-		}
-	}
+	StopWave();
 
 	if (bIsWin)
 	{
@@ -104,9 +88,9 @@ void ASGCGameMode::StartWave()
 		}
 	}
 
-
-	SpawnWave();
+	OnWaveStart.Broadcast();
 	EndSale();
+	SpawnWave();
 }
 
 void ASGCGameMode::SpawnWave()
@@ -159,17 +143,31 @@ ASGCEnemySpawnVolume* ASGCGameMode::GetEnemySpawnVolume()
 
 void ASGCGameMode::WaveOver()
 {
-	EndSale();
-	GetWorldTimerManager().ClearAllTimersForObject(this);
-
+	StopWave();
 	CurrentWave++;
 	if (CurrentWave < TotalWaves)
 	{
-		StartWave();
+		OnStartWaveTimeCountdown.Broadcast();
+		GetWorldTimerManager().SetTimer(WaveStartCountdownTimerHandle, this, &ASGCGameMode::StartWave, SecondsCountdownToWaveStart, false);
+		//StartWave();
 	}
 	else
 	{
 		GameOver(true);
+	}
+}
+
+void ASGCGameMode::StopWave()
+{
+	StopSale();
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+	for (auto Pawn : TActorRange<APawn>(GetWorld()))
+	{
+		if (Pawn)
+		{
+			Pawn->TurnOff();
+			Pawn->DisableInput(nullptr);
+		}
 	}
 }
 
@@ -259,12 +257,16 @@ void ASGCGameMode::StartSale()
 
 void ASGCGameMode::EndSale()
 {
+	StopSale();
+	int32 SecondsToNextSale = FMath::RandRange(SecondsToSaleMin, SecondsToSaleMax);
+	GetWorldTimerManager().SetTimer(NextSaleTimerHandle, this, &ASGCGameMode::StartSale, SecondsToNextSale, false);
+}
+
+void ASGCGameMode::StopSale()
+{
 	bIsSale = false;
 	GetWorldTimerManager().ClearTimer(SaleCountdownTimerHandle);
 	OnFinishBulletsSale.Broadcast();
-
-	int32 SecondsToNextSale = FMath::RandRange(SecondsToSaleMin, SecondsToSaleMax);
-	GetWorldTimerManager().SetTimer(NextSaleTimerHandle, this, &ASGCGameMode::StartSale, SecondsToNextSale, false);
 }
 
 void ASGCGameMode::SetCurrentPriceOfBullets()

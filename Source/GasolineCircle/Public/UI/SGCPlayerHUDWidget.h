@@ -23,13 +23,8 @@ public:
 protected:
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HealthProgressBar;
-	UPROPERTY(meta = (BindWidget))
-	class USGCBulletsSaleWidget* BulletsBuyWidget;
-	//UPROPERTY(meta = (BindWidget))
-	//class UTextBlock* CoinText;
 
 	virtual void NativeOnInitialized() override;
 	
 	FString FormatBullets(int32 BulletsNum) const;
-
 };
