@@ -21,13 +21,13 @@ void USGCWeaponComponent::BeginPlay()
 
 void USGCWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	StopFire();
 	CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	CurrentWeapon->Destroy();
 	CurrentWeapon = nullptr;
 
 	Super::EndPlay(EndPlayReason);
 }
-
 
 void USGCWeaponComponent::SpawnWeapon()
 {
