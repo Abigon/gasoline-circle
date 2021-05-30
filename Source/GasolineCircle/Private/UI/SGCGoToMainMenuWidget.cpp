@@ -2,6 +2,7 @@
 
 
 #include "UI/SGCGoToMainMenuWidget.h"
+#include "Core/SGCGameInstance.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -17,16 +18,16 @@ void USGCGoToMainMenuWidget::NativeOnInitialized()
 
 void USGCGoToMainMenuWidget::OnGoToMainMenu()
 {
-    //if (!GetWorld()) return;
+    if (!GetWorld()) return;
 
-    //const auto STUGameInstance = GetWorld()->GetGameInstance<USTUGameInstance>();
-    //if (!STUGameInstance) return;
+    if (!GetWorld()) return;
+    const auto SGCGameInstance = GetWorld()->GetGameInstance<USGCGameInstance>();
 
-    //if (STUGameInstance->GetMenuLevelName().IsNone())
-    //{
-    //    UE_LOG(LogTemp, Error, TEXT("Menu level name is NONE"));
-    //    return;
-    //}
-    //UGameplayStatics::OpenLevel(this, STUGameInstance->GetMenuLevelName());
+    if (SGCGameInstance->GetMainMenuLevelName().IsNone())
+    {
+        UE_LOG(LogTemp, Error, TEXT("Main Menu level name is NONE"));
+        return;
+    }
+    UGameplayStatics::OpenLevel(this, SGCGameInstance->GetMainMenuLevelName());
 }
 
