@@ -47,7 +47,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	int32 StartBullets = 60;
 
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	class USoundCue* ShotSound;	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	class USoundCue* ReloadSound;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	class USoundCue* EmptySound;
 
 	virtual void BeginPlay() override;
 

@@ -3,6 +3,8 @@
 
 #include "Weapon/SGCWeapon.h"
 #include "Weapon/SGCProjectile.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 ASGCWeapon::ASGCWeapon()
 {
@@ -35,9 +37,16 @@ void ASGCWeapon::StopFire()
 
 void ASGCWeapon::MakeShot()
 {
-	if (!GetWorld() || IsClipEmpty())
+	if (!GetWorld())
 	{
 		StopFire();
+		return;
+	}
+
+	if (IsClipEmpty())
+	{
+		StopFire();
+		UGameplayStatics::SpawnSoundAttached(EmptySound, WeaponMesh, MuzzleSocketName);
 		return;
 	}
 
@@ -48,6 +57,8 @@ void ASGCWeapon::MakeShot()
 
 		ASGCProjectile* TempProjectile = GetWorld()->SpawnActor<ASGCProjectile>(ProjectileClass, tempVector, tempRotator);
 		TempProjectile->SetOwner(GetOwner());
+		
+		UGameplayStatics::SpawnSoundAttached(ShotSound, WeaponMesh, MuzzleSocketName);
 
 		BulletsInClip--;
 	}
@@ -60,13 +71,13 @@ void ASGCWeapon::AddBullets(int32 NewBullets)
 
 void ASGCWeapon::Reload()
 {
-
 	if (!IsAmmoEmpty())
 	{
 		int32 NeedBullets = MaxBulletsInClip - BulletsInClip;
 		NeedBullets = NeedBullets <= TotalBullets ? NeedBullets : TotalBullets;
 		BulletsInClip += NeedBullets;
 		TotalBullets -= NeedBullets;
+		UGameplayStatics::SpawnSoundAttached(ReloadSound, WeaponMesh, MuzzleSocketName);
 	}
 }
 

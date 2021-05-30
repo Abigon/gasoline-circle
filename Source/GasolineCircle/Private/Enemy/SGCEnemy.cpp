@@ -12,6 +12,7 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 
 ASGCEnemy::ASGCEnemy()
@@ -49,6 +50,11 @@ void ASGCEnemy::BeginPlay()
 
 	GetWorldTimerManager().SetTimer(DamageTimerHandle, this, &ASGCEnemy::ApplyDamage, TimeBetweenDamage, true);
 	GetWorldTimerManager().SetTimer(CoinSpawnHandle, this, &ASGCEnemy::SpawnCoins, TimeBetweenCoinsSpawn, true);
+
+	if (GetWorld())
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, GetActorLocation());
+	}
 }
 
 void ASGCEnemy::Tick(float DeltaTime)
@@ -82,7 +88,11 @@ void ASGCEnemy::OnDeath()
 	GetWorldTimerManager().ClearTimer(DamageTimerHandle);
 	if (DeathParticles)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathParticles, GetActorLocation(), FRotator(0.f), true);
+		if (GetWorld())
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathParticles, GetActorLocation(), FRotator(0.f), true);
+		}
 	}
 	Destroy();
 }

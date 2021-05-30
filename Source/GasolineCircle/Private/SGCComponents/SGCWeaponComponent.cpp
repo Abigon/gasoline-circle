@@ -64,7 +64,6 @@ void USGCWeaponComponent::Reload()
 	CurrentWeapon->Reload();
 }
 
-
 int32 USGCWeaponComponent::GetCurrentTotalBullets() const
 {
 	if (CurrentWeapon) return CurrentWeapon->GetTotalBullets();

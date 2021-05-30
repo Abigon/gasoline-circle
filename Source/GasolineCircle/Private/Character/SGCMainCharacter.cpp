@@ -11,6 +11,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+
 
 ASGCMainCharacter::ASGCMainCharacter()
 {
@@ -160,11 +163,15 @@ void ASGCMainCharacter::TryBuyBullets()
 	if (!GetWorld()) return;
 	auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
 
-	if (!GameMode) return;
-	if (!GameMode->IsSale()) return;
+	if (!GameMode || !GameMode->IsSale()) return;
 
 	if (BuyBullets(GameMode->GetCurrentPriceOfBullets(), GameMode->GetBulletsForSale()))
 	{
 		GameMode->EndSale();
+		UGameplayStatics::PlaySound2D(GetWorld(), SaleSuccessSound);
+	}
+	else
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), SaleErrorSound);
 	}
 }

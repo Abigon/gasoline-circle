@@ -46,6 +46,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Camera | Zoom")
 	float CameraZoomDefault = 1600.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	class USoundCue* SaleSuccessSound;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	class USoundCue* SaleErrorSound;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coin")
 	int32 MaxCoinAmount = 0.f;
 

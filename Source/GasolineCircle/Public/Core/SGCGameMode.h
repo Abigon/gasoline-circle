@@ -98,6 +98,8 @@ protected:
 	float StepSecondsOfCountdown = 1.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Bullets Sale")
 	int32 StepPriceOfCountdown = 1.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	class USoundCue* SaleStartSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave Data")
 	TArray<FWaveSpawnData> WaveSpawnData;

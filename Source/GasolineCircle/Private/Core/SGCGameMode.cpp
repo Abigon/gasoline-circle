@@ -10,6 +10,7 @@
 #include "UI/SGCHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
+#include "Sound/SoundCue.h"
 
 
 ASGCGameMode::ASGCGameMode()
@@ -252,6 +253,10 @@ void ASGCGameMode::StartSale()
 	BulletsForSale = FMath::RandBool() ? BulletsForSaleMax : BulletsForSaleMin;
 
 	OnStartBulletsSale.Broadcast(BulletsForSale);
+	if (GetWorld())
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), SaleStartSound);
+	}
 	GetWorldTimerManager().SetTimer(SaleCountdownTimerHandle, this, &ASGCGameMode::SetCurrentPriceOfBullets, StepSecondsOfCountdown, true);
 }
 

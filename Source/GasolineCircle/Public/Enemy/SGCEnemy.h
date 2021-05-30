@@ -39,6 +39,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FX")
 	class UParticleSystem* DeathParticles;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	class USoundCue* SpawnSound;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	class USoundCue* DeathSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Spawn")
 	TSubclassOf<class ASGCCoin> CoinsClass;
