@@ -15,7 +15,7 @@ void ASGCExplosive::BeginPlay()
 
 void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && !IsHidden())
+	if (OtherActor && !GetWorldTimerManager().IsTimerActive(RespawnTimerHandle))
 	{
 		const auto Character = Cast<ASGCMainCharacter>(OtherActor);
 		if (Character)
@@ -32,8 +32,12 @@ void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 			}
 
 			//Destroy();
-			SetHidden(true);
-			Mesh->SetVisibility(false);
+			if (GetRootComponent())
+			{
+				GetRootComponent()->SetVisibility(false, true);
+			}
+			//SetHidden(true);
+			//Mesh->SetVisibility(false);
 			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASGCExplosive::Respawn, SecondsToRespawn, false);
 		}
 	}
@@ -42,6 +46,10 @@ void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 void ASGCExplosive::Respawn()
 {
 	GetWorldTimerManager().ClearTimer(RespawnTimerHandle);
-	SetHidden(false);
-	Mesh->SetVisibility(true);
+	if (GetRootComponent())
+	{
+		GetRootComponent()->SetVisibility(true, true);
+	}
+	//SetHidden(false);
+	//Mesh->SetVisibility(true);
 }
