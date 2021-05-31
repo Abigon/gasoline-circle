@@ -7,9 +7,15 @@
 #include "Character/SGCMainCharacter.h"
 
 
+void ASGCExplosive::BeginPlay()
+{
+	Super::BeginPlay();
+	Respawn();
+}
+
 void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	if (OtherActor && !IsHidden())
 	{
 		const auto Character = Cast<ASGCMainCharacter>(OtherActor);
 		if (Character)
@@ -25,7 +31,17 @@ void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 				Controller->PlayerCameraManager->StartCameraShake(CameraShake);
 			}
 
-			Destroy();
+			//Destroy();
+			SetHidden(true);
+			Mesh->SetVisibility(false);
+			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASGCExplosive::Respawn, SecondsToRespawn, false);
 		}
 	}
+}
+
+void ASGCExplosive::Respawn()
+{
+	GetWorldTimerManager().ClearTimer(RespawnTimerHandle);
+	SetHidden(false);
+	Mesh->SetVisibility(true);
 }
