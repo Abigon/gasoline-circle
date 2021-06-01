@@ -55,15 +55,29 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Spawn")
 	int32 CoinsSpawnMax = 10;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Animation")
+	bool bEnemyJump = true;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Animation", meta = (EditCondition = "bEnemyJump"))
+	float JumpHeight = 90.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Coins Animation", meta = (EditCondition = "bEnemyJump"))
+	float JumpVelocity = 180.0f;
 
 	virtual void BeginPlay() override;
+
+private:
+	class ASGCMainCharacter* PlayerPawn = nullptr;
+
+	FTimerHandle DamageTimerHandle;
+	FTimerHandle CoinSpawnHandle;
+
+	float StartZ = 0;
+	float MaxJumpZ = 0;
+	bool bIsMoveUp = true;
 
 	void ApplyDamage();
 	void OnDeath();
 	void MoveToPlayer();
+	void RotateToPlayer();
+	void EnemyJump(float DeltaTime);
 	void SpawnCoins();
-
-private:
-	FTimerHandle DamageTimerHandle;
-	FTimerHandle CoinSpawnHandle;
 };

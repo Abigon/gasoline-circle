@@ -45,11 +45,16 @@ void ASGCEnemy::BeginPlay()
 	check(Mesh);
 
 	CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
-
 	HealthComponent->OnDeath.AddUObject(this, &ASGCEnemy::OnDeath);
+
+	PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
 	GetWorldTimerManager().SetTimer(DamageTimerHandle, this, &ASGCEnemy::ApplyDamage, TimeBetweenDamage, true);
 	GetWorldTimerManager().SetTimer(CoinSpawnHandle, this, &ASGCEnemy::SpawnCoins, TimeBetweenCoinsSpawn, true);
+
+	StartZ = GetActorLocation().Z;
+	MaxJumpZ = StartZ + JumpHeight;
+	bIsMoveUp = true;
 
 	if (GetWorld())
 	{
@@ -62,12 +67,12 @@ void ASGCEnemy::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	MoveToPlayer();
+	RotateToPlayer();
+	EnemyJump(DeltaTime);
 }
 
 void ASGCEnemy::ApplyDamage()
 {
-	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
-
 	auto DistanceToPlayer = FVector::Dist(PlayerPawn->GetActorLocation(), GetActorLocation());
 
 	DrawDebugSphere(GetWorld(), GetActorLocation(), OuterDamageRadius, 12, FColor::Red, false, 0.5f);
@@ -99,12 +104,44 @@ void ASGCEnemy::OnDeath()
 
 void ASGCEnemy::MoveToPlayer()
 {
-	auto PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+	if (!PlayerPawn) return;
+	UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), PlayerPawn->GetActorLocation());
+}
 
-	if (PlayerPawn)
+void ASGCEnemy::RotateToPlayer()
+{
+	if (!PlayerPawn) return;
+	FVector LookAtTargetClean = FVector(PlayerPawn->GetActorLocation().X, PlayerPawn->GetActorLocation().Y, GetActorLocation().Z);
+	FVector StartLocation = GetActorLocation();
+	FRotator TurretRotation = FVector(LookAtTargetClean - StartLocation).Rotation();
+	SetActorRotation(TurretRotation);
+}
+
+void ASGCEnemy::EnemyJump(float DeltaTime)
+{
+	if (!bEnemyJump) return;
+
+	FVector Location = GetActorLocation();
+	if (bIsMoveUp)
 	{
-		UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), PlayerPawn->GetActorLocation());
+		Location.Z += DeltaTime * JumpVelocity;
 	}
+	else
+	{
+		Location.Z -= DeltaTime * JumpVelocity;
+	}
+
+	if (Location.Z >= MaxJumpZ)
+	{
+		Location.Z = MaxJumpZ;
+		bIsMoveUp = false;
+	}
+	if (Location.Z <= StartZ)
+	{
+		Location.Z = StartZ;
+		bIsMoveUp = true;
+	}
+	SetActorLocation(Location);
 }
 
 void ASGCEnemy::SpawnCoins()

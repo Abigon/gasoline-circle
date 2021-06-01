@@ -31,13 +31,10 @@ void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 				Controller->PlayerCameraManager->StartCameraShake(CameraShake);
 			}
 
-			//Destroy();
 			if (GetRootComponent())
 			{
 				GetRootComponent()->SetVisibility(false, true);
 			}
-			//SetHidden(true);
-			//Mesh->SetVisibility(false);
 			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASGCExplosive::Respawn, SecondsToRespawn, false);
 		}
 	}
@@ -50,6 +47,4 @@ void ASGCExplosive::Respawn()
 	{
 		GetRootComponent()->SetVisibility(true, true);
 	}
-	//SetHidden(false);
-	//Mesh->SetVisibility(true);
 }

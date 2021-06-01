@@ -11,7 +11,7 @@ ASGCItem::ASGCItem()
 
 	CollisionVolume = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionVolume"));
 	CollisionVolume->InitSphereRadius(50.f);
-	RootComponent = CollisionVolume;
+	SetRootComponent(CollisionVolume);
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(CollisionVolume);
