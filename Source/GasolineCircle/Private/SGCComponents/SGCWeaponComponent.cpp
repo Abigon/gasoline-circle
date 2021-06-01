@@ -37,7 +37,6 @@ void USGCWeaponComponent::SpawnWeapon()
 	auto Weapon = GetWorld()->SpawnActor<ASGCWeapon>(WeaponClass);
 	if (Weapon)
 	{
-		//Weapon->OnClipEmpty.AddUObject(this, &USTUWeaponComponent::OnEmptyClip);
 		Weapon->SetOwner(Character);
 		FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 		Weapon->AttachToComponent(Character->GetMesh(), AttachmentRules, WeaponSocketName);
@@ -80,5 +79,6 @@ int32 USGCWeaponComponent::GetCurrentBulletsInClip() const
 
 void USGCWeaponComponent::AddCurrentBullets(int32 Bullets)
 { 
+	if (!CurrentWeapon) return;
 	CurrentWeapon->AddBullets(Bullets); 
 }

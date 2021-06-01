@@ -49,5 +49,7 @@ void ASGCProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* 
 	const auto DamagedActor = Cast<ASGCEnemy>(OtherActor);
 	if (!DamagedActor) return;
 
-	DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), nullptr , this);
+	const auto Pawn = Cast<APawn>(GetOwner());
+	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
+	DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), Controller, this);
 }

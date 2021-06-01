@@ -32,6 +32,7 @@ void ASGCGameMode::StartPlay()
 	SetGameState(ESGCGameState::EGS_InProgress);
 
 	StopWave();
+//	StopSale();
 	OnStartWaveTimeCountdown.Broadcast();
 	GetWorldTimerManager().SetTimer(WaveStartCountdownTimerHandle, this, &ASGCGameMode::StartWave, SecondsCountdownToWaveStart, false); 
 }
@@ -88,6 +89,7 @@ void ASGCGameMode::StartWave()
 			PlayerPawn->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillPlayer);
 		}
 	}
+
 
 	OnWaveStart.Broadcast();
 	EndSale();
@@ -166,7 +168,7 @@ void ASGCGameMode::StopWave()
 	{
 		if (Pawn)
 		{
-			Pawn->TurnOff();
+			//Pawn->TurnOff();
 			Pawn->DisableInput(nullptr);
 		}
 	}
@@ -180,9 +182,6 @@ bool ASGCGameMode::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegat
 	{
 		SetGameState(ESGCGameState::EGS_Pause);
 	}
-	//GetWorldTimerManager().PauseTimer(WaveSpawnTimerHandle);
-	//GetWorldTimerManager().PauseTimer(SaleCountdownTimerHandle);
-	//GetWorldTimerManager().PauseTimer(NextSaleTimerHandle);
 	return PauseSet;
 }
 
@@ -192,9 +191,6 @@ bool ASGCGameMode::ClearPause()
 	if (PauseCleared)
 	{
 		SetGameState(ESGCGameState::EGS_InProgress);
-		//GetWorldTimerManager().UnPauseTimer(WaveSpawnTimerHandle);
-		//GetWorldTimerManager().UnPauseTimer(SaleCountdownTimerHandle);
-		//GetWorldTimerManager().UnPauseTimer(NextSaleTimerHandle);
 	}
 	return PauseCleared;
 }

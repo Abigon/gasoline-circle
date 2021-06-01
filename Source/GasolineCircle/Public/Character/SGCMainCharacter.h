@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "SGCMainCharacter.generated.h"
 
+
 UCLASS()
 class GASOLINECIRCLE_API ASGCMainCharacter : public ACharacter
 {
