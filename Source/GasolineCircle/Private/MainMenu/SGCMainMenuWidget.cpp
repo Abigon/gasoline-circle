@@ -25,11 +25,12 @@ void USGCMainMenuWidget::NativeOnInitialized()
 
 void  USGCMainMenuWidget::OnStartGame()
 {
-    if (!GetWorld()) return;
-    const auto SGCGameInstance = GetWorld()->GetGameInstance<USGCGameInstance>();
-    if (SGCGameInstance)
+    //if (!GetWorld()) return;
+    //const auto SGCGameInstance = GetWorld()->GetGameInstance<USGCGameInstance>();
+    //if (SGCGameInstance)
+    if (!StartLevelName.IsNone())
     {
-        UGameplayStatics::OpenLevel(this, SGCGameInstance->GetStartLevelName());
+        UGameplayStatics::OpenLevel(this, StartLevelName);
     }
 }
 

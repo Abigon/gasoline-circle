@@ -21,6 +21,9 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Game")
+	FName StartLevelName = NAME_None;
+
 	UFUNCTION()
 	void OnStartGame();
 

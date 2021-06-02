@@ -18,16 +18,19 @@ void USGCGoToMainMenuWidget::NativeOnInitialized()
 
 void USGCGoToMainMenuWidget::OnGoToMainMenu()
 {
-    if (!GetWorld()) return;
+    //if (!GetWorld()) return;
+    //const auto SGCGameInstance = GetWorld()->GetGameInstance<USGCGameInstance>();
 
-    if (!GetWorld()) return;
-    const auto SGCGameInstance = GetWorld()->GetGameInstance<USGCGameInstance>();
-
-    if (SGCGameInstance->GetMainMenuLevelName().IsNone())
+    //if (SGCGameInstance->GetMainMenuLevelName().IsNone())
+    //{
+    //    UE_LOG(LogTemp, Error, TEXT("Main Menu level name is NONE"));
+    //    return;
+    //}
+    if (MenuLevelName.IsNone())
     {
         UE_LOG(LogTemp, Error, TEXT("Main Menu level name is NONE"));
         return;
     }
-    UGameplayStatics::OpenLevel(this, SGCGameInstance->GetMainMenuLevelName());
+    UGameplayStatics::OpenLevel(this, MenuLevelName);
 }
 

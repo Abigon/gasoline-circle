@@ -19,6 +19,9 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Game")
+	FName MenuLevelName = NAME_None;
+
 	UFUNCTION()
 	void OnGoToMainMenu();
 };
