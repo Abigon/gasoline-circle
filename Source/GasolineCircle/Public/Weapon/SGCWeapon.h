@@ -17,6 +17,7 @@ public:
 	void StartFire();
 	void StopFire();
 	void Reload();
+	void ResetAmmo();
 	void AddBullets(int32 NewBullets);
 
 	bool IsClipEmpty() const { return BulletsInClip == 0; }

@@ -63,6 +63,13 @@ void USGCWeaponComponent::Reload()
 	CurrentWeapon->Reload();
 }
 
+void USGCWeaponComponent::ResetDefaultAmmo()
+{
+	if (!CurrentWeapon) return;
+	CurrentWeapon->StopFire();
+	CurrentWeapon->ResetAmmo();
+}
+
 int32 USGCWeaponComponent::GetCurrentTotalBullets() const
 {
 	if (CurrentWeapon) return CurrentWeapon->GetTotalBullets();

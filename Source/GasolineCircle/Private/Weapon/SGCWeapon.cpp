@@ -20,8 +20,7 @@ void ASGCWeapon::BeginPlay()
 
 	check(WeaponMesh);
 
-	TotalBullets = StartBullets;
-	Reload();
+	ResetAmmo();
 }
 
 void ASGCWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -85,5 +84,15 @@ void ASGCWeapon::Reload()
 		TotalBullets -= NeedBullets;
 		UGameplayStatics::SpawnSoundAttached(ReloadSound, WeaponMesh, MuzzleSocketName);
 	}
+}
+
+void ASGCWeapon::ResetAmmo()
+{
+	TotalBullets = StartBullets;
+	BulletsInClip = 0;
+	int32 NeedBullets = MaxBulletsInClip - BulletsInClip;
+	NeedBullets = NeedBullets <= TotalBullets ? NeedBullets : TotalBullets;
+	BulletsInClip += NeedBullets;
+	TotalBullets -= NeedBullets;
 }
 

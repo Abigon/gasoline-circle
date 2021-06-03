@@ -195,3 +195,9 @@ void ASGCMainCharacter::TryBuyBullets()
 		UGameplayStatics::PlaySound2D(GetWorld(), SaleErrorSound);
 	}
 }
+
+void ASGCMainCharacter::ResetPlayer(bool bIsRestoreHealth, bool bIsResetAmmo)
+{
+	if (bIsRestoreHealth) HealthComponent->RestoreHealth();
+	if (bIsResetAmmo) WeaponComponent->ResetDefaultAmmo();
+}
