@@ -19,34 +19,33 @@ void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 
 	if (GetWorldTimerManager().IsTimerActive(RespawnTimerHandle)) return;
 
-	if (OtherActor)
+	if (!OtherActor) return;
+
+	const auto Character = Cast<ASGCMainCharacter>(OtherActor);
+	if (!Character) return;
+
+	Character->TakeDamage(DamageAmount, FDamageEvent(), nullptr, this);
+
+	if (CameraShake)
 	{
-		const auto Character = Cast<ASGCMainCharacter>(OtherActor);
-		if (Character)
+		const auto Controller = Cast<APlayerController>(Character->GetController());
+		if (Controller && Controller->PlayerCameraManager)
 		{
-			Character->TakeDamage(DamageAmount, FDamageEvent(), nullptr, this);
-			if (GetWorld())
-			{
-				UGameplayStatics::PlaySound2D(GetWorld(), PickupSound);
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BoomParticles, GetActorLocation(), FRotator(0.f), true);
-			}
-
-			if (CameraShake)
-			{
-				const auto Controller = Cast<APlayerController>(Character->GetController());
-				if (Controller && Controller->PlayerCameraManager)
-				{
-					Controller->PlayerCameraManager->StartCameraShake(CameraShake);
-				}
-			}
-
-			if (GetRootComponent())
-			{
-				GetRootComponent()->SetVisibility(false, true);
-			}
-			GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASGCExplosive::Respawn, SecondsToRespawn, false);
+			Controller->PlayerCameraManager->StartCameraShake(CameraShake);
 		}
 	}
+
+	if (GetWorld())
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), PickupSound);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BoomParticles, GetActorLocation(), FRotator(0.f), true);
+	}
+
+	if (GetRootComponent())
+	{
+		GetRootComponent()->SetVisibility(false, true);
+	}
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASGCExplosive::Respawn, SecondsToRespawn, false);
 }
 
 void ASGCExplosive::Respawn()
