@@ -25,13 +25,16 @@ void USGCMainMenuWidget::NativeOnInitialized()
 
 void  USGCMainMenuWidget::OnStartGame()
 {
-    //if (!GetWorld()) return;
-    //const auto SGCGameInstance = GetWorld()->GetGameInstance<USGCGameInstance>();
-    //if (SGCGameInstance)
-    if (!StartLevelName.IsNone())
+    if (!GetWorld()) return;
+    const auto SGCGameInstance = GetWorld()->GetGameInstance<USGCGameInstance>();
+    if (!SGCGameInstance) return;
+
+    if (SGCGameInstance->GetStartLevelName().IsNone())
     {
-        UGameplayStatics::OpenLevel(this, StartLevelName);
+        UE_LOG(LogTemp, Error, TEXT("Start level name is NONE"));
+        return;
     }
+    UGameplayStatics::OpenLevel(this, SGCGameInstance->GetStartLevelName());
 }
 
 void  USGCMainMenuWidget::OnQuitGame()

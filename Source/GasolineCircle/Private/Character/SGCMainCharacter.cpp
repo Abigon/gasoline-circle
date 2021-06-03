@@ -3,6 +3,7 @@
 
 #include "Character/SGCMainCharacter.h"
 #include "Core/SGCGameMode.h"
+//#include "Core/SGCPlayerController.h"
 #include "SGCComponents/SGCWeaponComponent.h"
 #include "SGCComponents/SGCHealthComponent.h"
 #include "Camera/CameraComponent.h"
@@ -35,6 +36,7 @@ ASGCMainCharacter::ASGCMainCharacter()
 	SpringArmComponent->TargetArmLength = CameraZoomDefault;
 	SpringArmComponent->SetRelativeRotation(FRotator(-80.f, 0.f, 0.f));
 	SpringArmComponent->bDoCollisionTest = false;
+	SpringArmComponent->bInheritYaw = false;  // установить true, чтобы карта вращалась за персонажем
 
 	// Create a camera
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
@@ -56,6 +58,8 @@ void ASGCMainCharacter::BeginPlay()
 void ASGCMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+//	RotateToCursor(); ¬ключить дл€ вращени€ за курсором при включенном курсоре
 }
 
 void ASGCMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -87,6 +91,22 @@ void ASGCMainCharacter::CameraZoomOut()
 	float CurrentTargetArmLength = SpringArmComponent->TargetArmLength;
 	SpringArmComponent->TargetArmLength = FMath::Min(CurrentTargetArmLength + CameraZoomSpeed, CameraZoomMax);
 }
+
+void ASGCMainCharacter::RotateToCursor()
+{
+	const auto MyConstroller = GetController<APlayerController>();
+	if (!MyConstroller) return;
+
+	FHitResult TraceHitResult;
+	MyConstroller->GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
+	FVector LookAtTarget = TraceHitResult.ImpactPoint;
+
+	FVector LookAtTargetClean = FVector(LookAtTarget.X, LookAtTarget.Y, GetActorLocation().Z);
+	FVector StartLocation = GetActorLocation();
+	FRotator TurretRotation = FVector(LookAtTargetClean - StartLocation).Rotation();
+	SetActorRotation(TurretRotation);
+}
+
 void ASGCMainCharacter::TurnAtRate(float Rate)
 {
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());

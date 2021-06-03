@@ -24,6 +24,12 @@ void ASGCWeapon::BeginPlay()
 	Reload();
 }
 
+void ASGCWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+	Super::EndPlay(EndPlayReason);
+}
+
 void ASGCWeapon::StartFire()
 {
 	GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASGCWeapon::MakeShot, TimeBetweenShots, true);

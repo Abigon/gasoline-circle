@@ -8,13 +8,18 @@
 
 void ASGCCoin::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) 
 {
+	Super::OnOverlapBegin(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+
 	if (OtherActor)
 	{
 		const auto Character = Cast<ASGCMainCharacter>(OtherActor);
 		if (Character)
 		{
 			Character->AddCoins(Amount);
-			UGameplayStatics::PlaySound2D(this, PickupSound);
+			if (GetWorld())
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), PickupSound);
+			}
 			Destroy();
 		}
 	}

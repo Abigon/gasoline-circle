@@ -63,6 +63,7 @@ protected:
 	void LookUpAtRate(float Rate);
 	void CameraZoomIn();
 	void CameraZoomOut();
+	void RotateToCursor();
 
 	void OnDeath();
 

@@ -55,10 +55,10 @@ protected:
 	class USoundCue* EmptySound;
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void MakeShot();
 
 private:
 	FTimerHandle ShotTimerHandle;
-
 };
