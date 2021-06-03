@@ -106,6 +106,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wave Data")
 	float SecondsCountdownToWaveStart = 5.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "On New Wave")
+	bool bPlayerBulletsReset = true;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "On New Wave")
+	bool bPlayerHealthRestore = true;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "On New Wave")
+	bool bPlayerCoinsReset = true;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "On New Wave")
+	bool bRemoveCoinsFromMap = true;
 
 private:
 	FTimerHandle NextSaleTimerHandle;
@@ -125,14 +133,19 @@ private:
 
 	ESGCGameState CurrentGameState = ESGCGameState::EGS_Waiting;
 
+	class ASGCMainCharacter* PlayerCharacter0 = nullptr;
+	class ASGCPlayerController* PlayerController0 = nullptr;
+
 	void StartSale();
 	void StopSale();
+	void RestartSale();
 	void SetCurrentPriceOfBullets();
 
 	void GameOver(bool bIsWin);
 	void WaveOver();
 	void StartWave();
-	void StopWave();
+	void StopWave(bool IsResetCharacter);
+	void PrepareToWave();
 
 	void SpawnWave();
 	class ASGCEnemySpawnVolume* GetEnemySpawnVolume();
@@ -140,3 +153,64 @@ private:
 
 	void SetGameState(ESGCGameState State);
 };
+
+
+
+/*
+Старт игры
+- заблокировать управление
+- подписаться на обновление смерти перса
+- запустить состояние и таймер до новой волны
+
+
+Старт новой волны
+- сбросить точки респа врагов
+- разблокировать управление 
+- сгенерировать первую волну мобов
+- запустить таймер на следующую волну
+- запустить таймер аукциона
+
+
+Окончание волны при убийстве всех мобов
+- окончить аукцион
+- остановить все таймеры
+- остановить стрельбу перса
+- заблокировать управление персом
+- удалить или нет монеты с карты
+- сбросить состояние перса
+- запустить состояние и таймер до новой волны
+
+
+Победа
+- окончить аукцион
+- остановить все таймеры
+- остановить стрельбу перса
+- заблокировать управление персом??? или не надо т.к. будет виджет
+- поменять состояние игры на ПОБЕДУ
+
+
+Смерть персонажа
+- остановить стрельбу перса
+- окончить аукцион
+- остановить все таймеры
+- удалить всех врагов с карты
+- заблокировать управление персом??? или не надо т.к. будет виджет
+- поменять состояние игры на ПРОИГРЫШ
+
+
+
+
+
+переход в меню
+??? хз загружается другой уровень
+
+
+управление персом
++++ монеты на карте
++++ Состояние перса: монеты, патроны
+таймер аукциона
+состояние стрельбы перса
+враги на карте
+
+
+*/

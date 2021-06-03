@@ -15,7 +15,8 @@ class GASOLINECIRCLE_API ASGCPlayerController : public APlayerController
 
 public:
 	ASGCPlayerController();
-	
+	void SetPlayerControlAvaible(bool bIsAvaible);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;

@@ -6,7 +6,9 @@
 #include "Character/SGCMainCharacter.h"
 #include "Enemy/SGCEnemy.h"
 #include "Enemy/SGCEnemySpawnVolume.h"
+#include "Items/SGCCoin.h"
 #include "SGCComponents/SGCHealthComponent.h"
+#include "SGCComponents/SGCWeaponComponent.h"
 #include "UI/SGCHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
@@ -31,15 +33,19 @@ void ASGCGameMode::StartPlay()
 
 	SetGameState(ESGCGameState::EGS_InProgress);
 
-	StopWave();
-//	StopSale();
-	OnStartWaveTimeCountdown.Broadcast();
-	GetWorldTimerManager().SetTimer(WaveStartCountdownTimerHandle, this, &ASGCGameMode::StartWave, SecondsCountdownToWaveStart, false); 
+	PlayerCharacter0 = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+	PlayerController0 = Cast<ASGCPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (PlayerCharacter0)
+	{
+		PlayerCharacter0->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillPlayer);
+	}
+
+	PrepareToWave();
 }
 
 void ASGCGameMode::GameOver(bool bIsWin)
 {
-	StopWave();
+	StopWave(false);
 
 	if (bIsWin)
 	{
@@ -78,26 +84,19 @@ void ASGCGameMode::StartWave()
 		if (SpawnVolume) SpawnVolume->Reset();
 	}
 
-	auto PlayerController = Cast<ASGCPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-	if (PlayerController && PlayerController->GetPawn())
+	if (PlayerController0)
 	{
-		PlayerController->GetPawn()->Reset();
-		RestartPlayer(PlayerController);
-		auto PlayerPawn = Cast<ASGCMainCharacter>(PlayerController->GetPawn());
-		if (PlayerPawn)
-		{
-			PlayerPawn->GetHealthComponent()->OnDeath.AddUObject(this, &ASGCGameMode::KillPlayer);
-		}
+		PlayerController0->SetPlayerControlAvaible(true);
 	}
 
-
 	OnWaveStart.Broadcast();
-	EndSale();
+	RestartSale();
 	SpawnWave();
 }
 
 void ASGCGameMode::SpawnWave()
 {
+	
 	if (CurrentWaveSpawnData.EnemiesData.Num() == 0) return;
 
 	int32 MaxSpawn = ((CurrentWaveSpawnData.AmountEnemiesSpawnAtOnce != 0) && (CurrentWaveSpawnData.SecondsBetweenSpawn != 0)) ? CurrentWaveSpawnData.AmountEnemiesSpawnAtOnce : WaveLeftEnemies;
@@ -144,15 +143,24 @@ ASGCEnemySpawnVolume* ASGCGameMode::GetEnemySpawnVolume()
 	return EnemySpawnsArray[Index];
 }
 
+void ASGCGameMode::PrepareToWave()
+{
+	if (PlayerController0)
+	{
+		PlayerController0->SetPlayerControlAvaible(false);
+	}
+	StopSale();
+	OnStartWaveTimeCountdown.Broadcast();
+	GetWorldTimerManager().SetTimer(WaveStartCountdownTimerHandle, this, &ASGCGameMode::StartWave, SecondsCountdownToWaveStart, false);
+}
+
 void ASGCGameMode::WaveOver()
 {
-	StopWave();
 	CurrentWave++;
 	if (CurrentWave < TotalWaves)
 	{
-		OnStartWaveTimeCountdown.Broadcast();
-		GetWorldTimerManager().SetTimer(WaveStartCountdownTimerHandle, this, &ASGCGameMode::StartWave, SecondsCountdownToWaveStart, false);
-		//StartWave();
+		StopWave(true);
+		PrepareToWave();
 	}
 	else
 	{
@@ -160,16 +168,26 @@ void ASGCGameMode::WaveOver()
 	}
 }
 
-void ASGCGameMode::StopWave()
+void ASGCGameMode::StopWave(bool IsResetCharacter)
 {
 	StopSale();
 	GetWorldTimerManager().ClearAllTimersForObject(this);
-	for (auto Pawn : TActorRange<APawn>(GetWorld()))
+	if (PlayerCharacter0)
 	{
-		if (Pawn)
+		PlayerCharacter0->GetWeaponComponent()->StopFire();
+		if (IsResetCharacter) PlayerCharacter0->ResetPlayer(bPlayerHealthRestore, bPlayerBulletsReset, bPlayerCoinsReset);
+	}
+
+	for (auto Enemy : TActorRange<ASGCEnemy>(GetWorld()))
+	{
+		if (Enemy) Enemy->Destroy();
+	}
+
+	if (bRemoveCoinsFromMap)
+	{
+		for (auto Coin : TActorRange<ASGCCoin>(GetWorld()))
 		{
-			//Pawn->TurnOff();
-			Pawn->DisableInput(nullptr);
+			if (Coin) Coin->Destroy();
 		}
 	}
 }
@@ -202,6 +220,7 @@ void ASGCGameMode::SetGameState(ESGCGameState State)
 	CurrentGameState = State;
 	OnGameStateChanged.Broadcast(CurrentGameState);
 }
+
 void ASGCGameMode::CheckLevel()
 {
 	checkf(WaveSpawnData.Num() > 0, TEXT("Count of Waves must be Above ZERO!!!!"));
@@ -259,6 +278,11 @@ void ASGCGameMode::StartSale()
 void ASGCGameMode::EndSale()
 {
 	StopSale();
+	RestartSale();
+}
+
+void ASGCGameMode::RestartSale()
+{
 	int32 SecondsToNextSale = FMath::RandRange(SecondsToSaleMin, SecondsToSaleMax);
 	GetWorldTimerManager().SetTimer(NextSaleTimerHandle, this, &ASGCGameMode::StartSale, SecondsToNextSale, false);
 }

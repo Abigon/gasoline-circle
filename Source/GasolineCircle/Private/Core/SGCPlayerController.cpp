@@ -51,3 +51,16 @@ void ASGCPlayerController::OnGameStateChanged(ESGCGameState State)
 	}
 }
 
+void ASGCPlayerController::SetPlayerControlAvaible(bool bIsAvaible)
+{
+	if (!GetPawn()) return;
+
+	if (bIsAvaible)
+	{
+		GetPawn()->EnableInput(this);
+	}
+	else
+	{
+		GetPawn()->DisableInput(this);
+	}
+}

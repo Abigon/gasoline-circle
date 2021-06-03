@@ -196,8 +196,9 @@ void ASGCMainCharacter::TryBuyBullets()
 	}
 }
 
-void ASGCMainCharacter::ResetPlayer(bool bIsRestoreHealth, bool bIsResetAmmo)
+void ASGCMainCharacter::ResetPlayer(bool bIsRestoreHealth, bool bIsResetAmmo, bool bIsResetCoins)
 {
 	if (bIsRestoreHealth) HealthComponent->RestoreHealth();
 	if (bIsResetAmmo) WeaponComponent->ResetDefaultAmmo();
+	if (bIsResetCoins) CoinAmount = 0;
 }

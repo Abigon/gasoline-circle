@@ -17,7 +17,7 @@ public:
 	bool CanPay(int32 Price) const { return CoinAmount >= Price; }
 	int32 GetCoinAmount() const { return CoinAmount; }
 	void AddCoins(int32 Coins);
-	void ResetPlayer(bool bIsRestoreHealth, bool bIsResetAmmo);
+	void ResetPlayer(bool bIsRestoreHealth, bool bIsResetAmmo, bool bIsResetCoins);
 
 	ASGCMainCharacter();
 	virtual void Tick(float DeltaTime) override;
