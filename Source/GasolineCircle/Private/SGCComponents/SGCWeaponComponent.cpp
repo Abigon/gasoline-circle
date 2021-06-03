@@ -1,9 +1,9 @@
 // Gasoline Circle. Skillbox's Gamebox test, All Right Reserved!!
 
 
+#include "SGCComponents/SGCWeaponComponent.h"
 #include "Weapon/SGCWeapon.h"
 #include "GameFramework/Character.h"
-#include "SGCComponents/SGCWeaponComponent.h"
 
 USGCWeaponComponent::USGCWeaponComponent()
 {

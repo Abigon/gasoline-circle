@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
+
 ASGCWeapon::ASGCWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;

@@ -1,8 +1,8 @@
 // Gasoline Circle. Skillbox's Gamebox test, All Right Reserved!!
 
 
-#include "Core/SGCGameMode.h"
 #include "UI/SGCPauseMenuWidget.h"
+#include "Core/SGCGameMode.h"
 #include "Components/Button.h"
 
 void USGCPauseMenuWidget::NativeOnInitialized()
