@@ -36,6 +36,9 @@ protected:
 	float InnerDamageRadius = 0.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
 	float TimeBetweenDamage = 1.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Damage")
+	bool bShowDamegeSphere = true;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FX")
 	class UParticleSystem* DeathParticles;
