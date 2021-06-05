@@ -7,8 +7,11 @@
 #include "SGCExplosiveDamageType.generated.h"
 
 /**
- * 
+	DamageType для мины-ловушки. 
+	В контекстве данной игры нужен для активации тряски камеры 
  */
+
+
 UCLASS()
 class GASOLINECIRCLE_API USGCExplosiveDamageType : public UDamageType
 {

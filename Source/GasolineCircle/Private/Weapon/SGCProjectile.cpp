@@ -24,7 +24,11 @@ ASGCProjectile::ASGCProjectile()
 	Mesh->SetupAttachment(CollisionComponent);
 
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
-	MovementComponent->InitialSpeed = 2000.f;
+
+	// Устанавливаем скорость пули
+	MovementComponent->InitialSpeed = 1500.f;
+
+	// Отключаем гравитацию, чтобы пуля летела гоизонтально
 	MovementComponent->ProjectileGravityScale = 0.f;
 }
 
@@ -36,7 +40,9 @@ void ASGCProjectile::BeginPlay()
 	check(CollisionComponent);
 	check(Mesh);
 
-	CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
+	// Игнорируем стрелка, тчобы не было попадания стреляющего по себе
+	CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);			
+
 	CollisionComponent->OnComponentHit.AddDynamic(this, &ASGCProjectile::OnProjectileHit);
 	SetLifeSpan(LifeSeconds);
 }
@@ -46,6 +52,7 @@ void ASGCProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* 
 	MovementComponent->StopMovementImmediately();
 	Destroy();
 
+	// Наносим урон только врагам, остальных игнорируем
 	const auto DamagedActor = Cast<ASGCEnemy>(OtherActor);
 	if (!DamagedActor) return;
 
