@@ -19,6 +19,8 @@ void USGCWeaponComponent::BeginPlay()
 	SpawnWeapon();
 }
 
+// При окончании игры останавливаем стрельбу и удаляем оружие
+// Иначе в случае сброса чарактера, оружие останется на карте
 void USGCWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	StopFire();
@@ -29,6 +31,8 @@ void USGCWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+
+// Производим спаун оружия и присоединяем его к персонажу
 void USGCWeaponComponent::SpawnWeapon()
 {
 	auto Character = Cast<ACharacter>(GetOwner());
@@ -44,18 +48,21 @@ void USGCWeaponComponent::SpawnWeapon()
 	}
 }
 
+// Начинаем стрельбу. Вызывается при нажатии соотвествующей кнопки управления
 void USGCWeaponComponent::StartFire()
 {
 	if (!CurrentWeapon) return;
 	CurrentWeapon->StartFire();
 }
 
+// Прекращаем стрельбу. Вызывается при отпустанни соотвествующей кнопки управления
 void USGCWeaponComponent::StopFire()
 {
 	if (!CurrentWeapon) return;
 	CurrentWeapon->StopFire();
 }
 
+// Перезарядка оружия. Вызывается при нажатии соотвествующей кнопки управления
 void USGCWeaponComponent::Reload()
 {
 	if (!CurrentWeapon) return;
@@ -63,6 +70,7 @@ void USGCWeaponComponent::Reload()
 	CurrentWeapon->Reload();
 }
 
+// Сбрасывает кол-во патронов в текущем оружии на первоначальные значения
 void USGCWeaponComponent::ResetDefaultAmmo()
 {
 	if (!CurrentWeapon) return;
@@ -70,20 +78,21 @@ void USGCWeaponComponent::ResetDefaultAmmo()
 	CurrentWeapon->ResetAmmo();
 }
 
+// Геттер для вижджета. Возвращается кол-во патронов текущего оружия в инвентаре
 int32 USGCWeaponComponent::GetCurrentTotalBullets() const
 {
 	if (CurrentWeapon) return CurrentWeapon->GetTotalBullets();
-
 	return 0;
 }
 
+// Геттер для вижджета. Возвращает кол-во патронов текущего оружия в обойме
 int32 USGCWeaponComponent::GetCurrentBulletsInClip() const
 {
 	if (CurrentWeapon) return CurrentWeapon->GetBulletsInClip();
-
 	return 0;
 }
 
+// Добавляет патроны в инвентарь для текущего оружия
 void USGCWeaponComponent::AddCurrentBullets(int32 Bullets)
 { 
 	if (!CurrentWeapon) return;
