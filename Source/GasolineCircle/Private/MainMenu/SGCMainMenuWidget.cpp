@@ -23,6 +23,10 @@ void USGCMainMenuWidget::NativeOnInitialized()
     }
 }
 
+
+// Вызывается при нажатии на кнопку запуска игры
+// Получает название стартового уровня из GameInstance
+// При его отсутствии выведет в лог сообщение и ничего не запустит
 void  USGCMainMenuWidget::OnStartGame()
 {
     if (!GetWorld()) return;
@@ -37,6 +41,7 @@ void  USGCMainMenuWidget::OnStartGame()
     UGameplayStatics::OpenLevel(this, SGCGameInstance->GetStartLevelName());
 }
 
+// Выводит из игры при нажатии соответствующей кнопки
 void  USGCMainMenuWidget::OnQuitGame()
 {
     UKismetSystemLibrary::QuitGame(this, GetOwningPlayer(), EQuitPreference::Quit, true);
