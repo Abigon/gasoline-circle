@@ -2,7 +2,6 @@
 
 
 #include "Items/SGCExplosive.h"
-#include "Character/SGCMainCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
@@ -20,11 +19,9 @@ void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 	if (GetWorldTimerManager().IsTimerActive(RespawnTimerHandle)) return;
 
 	if (!OtherActor) return;
+	if (!DamagedPawnsClasses.Contains(OtherActor->GetClass())) return;
 
-	const auto Character = Cast<ASGCMainCharacter>(OtherActor);
-	if (!Character) return;
-
-	Character->TakeDamage(DamageAmount, FDamageEvent(SGCDamageType), nullptr, this);
+	OtherActor->TakeDamage(DamageAmount, FDamageEvent(SGCDamageType), nullptr, this);
 
 	if (GetWorld())
 	{
