@@ -26,21 +26,29 @@ void ASGCWeapon::BeginPlay()
 
 void ASGCWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	GetWorldTimerManager().ClearAllTimersForObject(this);
+	StopFire();
 	Super::EndPlay(EndPlayReason);
 }
 
+
+// Начинаем стрельбу. Делаемтся выстрел и запускается таймер для стрельбы очередями
 void ASGCWeapon::StartFire()
 {
 	GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASGCWeapon::MakeShot, TimeBetweenShots, true);
 	MakeShot();
 }
 
+
+// При прекращении стрельбы останавливаем таймер
 void ASGCWeapon::StopFire()
 {
 	GetWorldTimerManager().ClearTimer(ShotTimerHandle);
 }
 
+
+// Производим выстрел
+// При пустом магазине выдаем соответствующий звук
+// Если патроны в магазине есть, то спаунится пуля
 void ASGCWeapon::MakeShot()
 {
 	if (!GetWorld())
@@ -62,7 +70,10 @@ void ASGCWeapon::MakeShot()
 		FRotator tempRotator = WeaponMesh->GetSocketRotation(MuzzleSocketName);
 
 		ASGCProjectile* TempProjectile = GetWorld()->SpawnActor<ASGCProjectile>(ProjectileClass, tempVector, tempRotator);
-		TempProjectile->SetOwner(GetOwner());
+		if (TempProjectile)
+		{
+			TempProjectile->SetOwner(GetOwner());
+		}
 		
 		UGameplayStatics::SpawnSoundAttached(ShotSound, WeaponMesh, MuzzleSocketName);
 
@@ -70,11 +81,15 @@ void ASGCWeapon::MakeShot()
 	}
 }
 
+
+// Добавление патронов в инвентарь 
 void ASGCWeapon::AddBullets(int32 NewBullets)
 {
 	TotalBullets = FMath::Min(TotalBullets + NewBullets, MaxBullets);
 }
 
+
+// Перезардка магазина с соответствующим звуком
 void ASGCWeapon::Reload()
 {
 	if (!IsAmmoEmpty())
@@ -87,6 +102,9 @@ void ASGCWeapon::Reload()
 	}
 }
 
+
+// Восстановление кол-ва патронов до стартового 
+// Одновременно зарядка первого магазина
 void ASGCWeapon::ResetAmmo()
 {
 	TotalBullets = StartBullets;
