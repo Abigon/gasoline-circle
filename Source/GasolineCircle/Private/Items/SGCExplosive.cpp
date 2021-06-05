@@ -12,23 +12,23 @@ void ASGCExplosive::BeginPlay()
 	Respawn();
 }
 
-void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASGCExplosive::OnCollisionVolumeOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Super::OnOverlapBegin(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	Super::OnCollisionVolumeOverlapBegin(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
+	// При запущенном таймере восстановления перекрытие игнорируется
 	if (GetWorldTimerManager().IsTimerActive(RespawnTimerHandle)) return;
 
 	if (!OtherActor) return;
+
+	// Если объекта перекрывшего мину нет в списке он игнорируется
 	if (!DamagedPawnsClasses.Contains(OtherActor->GetClass())) return;
 
 	OtherActor->TakeDamage(DamageAmount, FDamageEvent(SGCDamageType), nullptr, this);
 
-	if (GetWorld())
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), PickupSound);
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BoomParticles, GetActorLocation(), FRotator(0.f), true);
-	}
+	PlayEffects();
 
+	// Скрываем мину после взрыва и запускаем таймер появления
 	if (GetRootComponent())
 	{
 		GetRootComponent()->SetVisibility(false, true);
@@ -36,9 +36,10 @@ void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 	}
 }
 
+
+// Восстановление мины на карте
 void ASGCExplosive::Respawn()
 {
-	GetWorldTimerManager().ClearTimer(RespawnTimerHandle);
 	if (GetRootComponent())
 	{
 		GetRootComponent()->SetVisibility(true, true);
