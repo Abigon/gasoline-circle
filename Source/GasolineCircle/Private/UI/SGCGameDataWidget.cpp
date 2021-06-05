@@ -4,16 +4,26 @@
 #include "UI/SGCGameDataWidget.h"
 #include "Core/SGCGameMode.h"
 
-FString USGCGameDataWidget::GetWaveInfo() const
+
+void USGCGameDataWidget::NativeOnInitialized()
 {
-	const auto World = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
-	if (!World)	return "0 / 0";
-	return FString::Printf(TEXT("Wave %i / %i"), World->GetCurrentWave(), World->GetTotalWaves());
+	Super::NativeOnInitialized();
+
+	// Инициализируем GameMode
+	if (!GetWorld()) return;
+	GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
 }
 
+// Возвращает строку с текущей волной и общим кол-ом волн
+FString USGCGameDataWidget::GetWaveInfo() const
+{
+	if (!GameMode)	return "0 / 0";
+	return FString::Printf(TEXT("Wave %i / %i"), GameMode->GetCurrentWave(), GameMode->GetTotalWaves());
+}
+
+// Возвращает строку с кол-вом оставшихся врагов
 FString USGCGameDataWidget::GetWaveLeftEnemies() const
 {
-	const auto World = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
-	if (!World)	return "Enemies: 0+";
-	return FString::Printf(TEXT("Enemies: %i"), World->GetWaveLeftEnemies());
+	if (!GameMode)	return "Enemies: 0+";
+	return FString::Printf(TEXT("Enemies: %i"), GameMode->GetWaveLeftEnemies());
 }

@@ -15,6 +15,8 @@ void USGCPauseMenuWidget::NativeOnInitialized()
     }
 }
 
+
+// При нажатии кномпки снимаем паузу в GameMode
 void USGCPauseMenuWidget::OnContinueGame()
 {
     if (!GetWorld() || !GetWorld()->GetAuthGameMode()) return;

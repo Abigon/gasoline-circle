@@ -8,6 +8,12 @@
 #include "SGCHUD.generated.h"
 
 
+/*
+	Класс основного HUD в игре. Назначается в GameMode
+	Отвечает за вывод корректрого виджета в зависимости от состояния игры
+*/
+
+
 UCLASS()
 class GASOLINECIRCLE_API ASGCHUD : public AHUD
 {
@@ -16,6 +22,9 @@ class GASOLINECIRCLE_API ASGCHUD : public AHUD
 public:
 
 protected:
+
+	// Классы на виджеты основного HUD игрока, паузы и окончания игры
+	// Устанавливаются в Blueprint
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
@@ -26,6 +35,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	// Сслыки на созданные виджеты и сслыка на текущий установленный виджет
 	UPROPERTY()
 	UUserWidget* CurrentWidget = nullptr;
 	UPROPERTY()

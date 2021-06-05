@@ -16,6 +16,9 @@ void USGCGoToMainMenuWidget::NativeOnInitialized()
     }
 }
 
+
+// Функция берет название уровня главного меню из GameInstance
+// и загружает этот уровень
 void USGCGoToMainMenuWidget::OnGoToMainMenu()
 {
     if (!GetWorld()) return;

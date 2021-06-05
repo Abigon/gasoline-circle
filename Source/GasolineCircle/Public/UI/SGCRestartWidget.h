@@ -7,18 +7,26 @@
 #include "SGCRestartWidget.generated.h"
 
 
+/*
+	Класс кнопки перезапука уровня
+	Кнопка создана чтобы не дублировать код в нескольких виджетах
+*/
+
+
 UCLASS()
 class GASOLINECIRCLE_API USGCRestartWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
 protected:
+	// ССылки на Button в Blueprint для связи 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* RestartButton;
 
 	virtual void NativeOnInitialized() override;
 
 private:
+	// Вызывается при нажатии на кнопку
 	UFUNCTION()
 	void OnRestart();
 };

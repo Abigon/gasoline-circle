@@ -7,6 +7,13 @@
 #include "SGCNewWaveWidget.generated.h"
 
 
+/*
+	Класс виджета для отображения обратного отсчета перед стартом новой волны мобов,
+	Является частью виджета основного HUD игрока
+	Функции возвращают строковые значение. Все необходимые преобразования происходя в Blueprint
+*/
+
+
 UCLASS()
 class GASOLINECIRCLE_API USGCNewWaveWidget : public UUserWidget
 {
@@ -22,4 +29,8 @@ protected:
 
 	void OnStartCountdown();
 	void OnFinishCountdown();
+
+private:
+	// Ссылка на GameMode, для сокращения кол-ва кастов
+	class ASGCGameMode* GameMode = nullptr;
 };

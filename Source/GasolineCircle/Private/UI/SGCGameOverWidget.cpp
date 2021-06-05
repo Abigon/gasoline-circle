@@ -8,15 +8,21 @@ void USGCGameOverWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
+
+    // Подписываемся на события смены состояния игры в GameMode 
     if (GetWorld())
     {
-        if (const auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode()))
+        const auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
+        if (GameMode)
         {
             GameMode->OnGameStateChanged.AddUObject(this, &USGCGameOverWidget::OnGameStateChanged);
         }
     }
 }
 
+
+// Вызывается при смене состояния игры
+// Обрабатывает только состояния окончания игры
 void USGCGameOverWidget::OnGameStateChanged(ESGCGameState State)
 {
     if (State == ESGCGameState::EGS_GameOverWin)

@@ -9,6 +9,8 @@ void ASGCHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Создаем виджеты при выбранном соответствующем классе
+	// Проверки на установленный класс нет, просто виджет соответствующего состояния не выведется
 	if (PlayerHUDWidgetClass)
 	{
 		PlayerHUDWidget = CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass);
@@ -28,6 +30,7 @@ void ASGCHUD::BeginPlay()
 		GameOvertWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
+	// Подписываемся на события смены состояния игры в GameMode 
 	if (GetWorld())
 	{
 		if (const auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode()))
@@ -37,6 +40,7 @@ void ASGCHUD::BeginPlay()
 	}
 }
 
+// Заменяем текущий виджет в зависимости от состояния игры
 void ASGCHUD::OnGameStateChanged(ESGCGameState State)
 {
 	if (CurrentWidget)

@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 
+
 void USGCRestartWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
@@ -15,6 +16,8 @@ void USGCRestartWidget::NativeOnInitialized()
     }
 }
 
+
+// ѕолучает название текущего уровн€ и открываем его
 void USGCRestartWidget::OnRestart()
 {
     const auto CurrentLevelName = UGameplayStatics::GetCurrentLevelName(this);

@@ -12,8 +12,11 @@ void USGCNewWaveWidget::NativeOnInitialized()
 
 	SetVisibility(ESlateVisibility::Hidden);
 
+	// Инициализируем GameMode
 	if (!GetWorld()) return;
-	auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
+	GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
+
+	// Подписываемся на события начала обратного отсчет и его окончания
 	if (GameMode)
 	{
 		GameMode->OnStartWaveTimeCountdown.AddUObject(this, &USGCNewWaveWidget::OnStartCountdown);
@@ -21,20 +24,24 @@ void USGCNewWaveWidget::NativeOnInitialized()
 	}
 }
 
+// Показываем виджет при начале отсчета
 void USGCNewWaveWidget::OnStartCountdown()
 {
 	SetVisibility(ESlateVisibility::Visible);
 }
 
+// Прячем виджет при окончании отсчета
 void USGCNewWaveWidget::OnFinishCountdown()
 {
 	SetVisibility(ESlateVisibility::Hidden);
 }
 
+
+// Возыращаем цифру обратного остчета или Go!
 FString USGCNewWaveWidget::GetLeftSeconds() const
 {
-	if (!GetWorld()) return "";
-	auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
+	if (!IsVisible()) return "";
+
 	int32 TimeToWave = GameMode ? GameMode->GetWaveStartCountdownTimer() : 0;
 	if (TimeToWave < 1) return "Go!";
 	return FString::FromInt(TimeToWave);

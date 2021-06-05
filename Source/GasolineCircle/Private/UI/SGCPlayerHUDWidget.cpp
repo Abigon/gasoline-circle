@@ -10,8 +10,13 @@
 void USGCPlayerHUDWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+
+	PlayerPawn = Cast<ASGCMainCharacter>(GetOwningPlayerPawn());
 }
 
+
+// Форматирует строку с кол-вом патронов так, чтобы она была всегда 3 символа
+// Недостающие символы заполняет нулями
 FString USGCPlayerHUDWidget::FormatBullets(int32 BulletsNum) const
 {
 	const int32 MaxLength = 3;
@@ -30,24 +35,18 @@ FString USGCPlayerHUDWidget::FormatBullets(int32 BulletsNum) const
 
 FString USGCPlayerHUDWidget::GetBulletsInfo() const
 {
-	const auto PlayerPawn = Cast<ASGCMainCharacter>(GetOwningPlayerPawn());
 	if (!PlayerPawn) return "0 / 0";
-
 	return FormatBullets(PlayerPawn->GetWeaponComponent()->GetCurrentBulletsInClip()) + " / " + FormatBullets(PlayerPawn->GetWeaponComponent()->GetCurrentTotalBullets());
 }
 
 float USGCPlayerHUDWidget::GetHealthPercent() const
 {
-	const auto PlayerPawn = Cast<ASGCMainCharacter>(GetOwningPlayerPawn());
 	if (!PlayerPawn) return 0.f;
-
 	return PlayerPawn->GetHealthComponent()->GetHealthPercent();
 }
 
 int32 USGCPlayerHUDWidget::GetCoinsAmount() const
 {
-	const auto PlayerPawn = Cast<ASGCMainCharacter>(GetOwningPlayerPawn());
 	if (!PlayerPawn) return 0;
-
 	return PlayerPawn->GetCoinAmount();
 }
