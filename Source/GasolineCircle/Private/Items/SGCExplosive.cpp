@@ -2,9 +2,9 @@
 
 
 #include "Items/SGCExplosive.h"
+#include "Character/SGCMainCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
-#include "Character/SGCMainCharacter.h"
 
 
 void ASGCExplosive::BeginPlay()
@@ -24,16 +24,7 @@ void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 	const auto Character = Cast<ASGCMainCharacter>(OtherActor);
 	if (!Character) return;
 
-	Character->TakeDamage(DamageAmount, FDamageEvent(), nullptr, this);
-
-	if (CameraShake)
-	{
-		const auto Controller = Cast<APlayerController>(Character->GetController());
-		if (Controller && Controller->PlayerCameraManager)
-		{
-			Controller->PlayerCameraManager->StartCameraShake(CameraShake);
-		}
-	}
+	Character->TakeDamage(DamageAmount, FDamageEvent(SGCDamageType), nullptr, this);
 
 	if (GetWorld())
 	{
@@ -44,8 +35,8 @@ void ASGCExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 	if (GetRootComponent())
 	{
 		GetRootComponent()->SetVisibility(false, true);
+		GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASGCExplosive::Respawn, SecondsToRespawn, false);
 	}
-	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASGCExplosive::Respawn, SecondsToRespawn, false);
 }
 
 void ASGCExplosive::Respawn()

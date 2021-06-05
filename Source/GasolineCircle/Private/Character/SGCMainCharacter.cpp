@@ -50,7 +50,15 @@ ASGCMainCharacter::ASGCMainCharacter()
 void ASGCMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	check(SpringArmComponent);
+	check(CameraComponent);
+	check(HealthComponent);
+	check(WeaponComponent);
+
 	HealthComponent->OnDeath.AddUObject(this, &ASGCMainCharacter::OnDeath);
+
+	CharacterConstroller = GetController<APlayerController>();
 
 	CoinAmount = 0;
 }
@@ -94,11 +102,10 @@ void ASGCMainCharacter::CameraZoomOut()
 
 void ASGCMainCharacter::RotateToCursor()
 {
-	const auto MyConstroller = GetController<APlayerController>();
-	if (!MyConstroller) return;
+	if (!CharacterConstroller) return;
 
 	FHitResult TraceHitResult;
-	MyConstroller->GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
+	CharacterConstroller->GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
 	FVector LookAtTarget = TraceHitResult.ImpactPoint;
 
 	FVector LookAtTargetClean = FVector(LookAtTarget.X, LookAtTarget.Y, GetActorLocation().Z);

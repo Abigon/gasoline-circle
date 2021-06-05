@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Items/SGCItem.h"
+#include "Weapon/SGCExplosiveDamageType.h"
 #include "SGCExplosive.generated.h"
 
 
@@ -18,14 +19,14 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Explosive")
 	float DamageAmount = 3.f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Explosive")
 	class UParticleSystem* BoomParticles;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Explosive")
-	TSubclassOf<class UCameraShakeBase> CameraShake;
-
+	TSubclassOf<UDamageType> SGCDamageType = USGCExplosiveDamageType::StaticClass();
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Explosive")
 	float SecondsToRespawn = 5.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Explosive")
+	TSet <TSubclassOf<APawn>> DamagedPawnsClasses;
 
 	virtual void BeginPlay() override;
 

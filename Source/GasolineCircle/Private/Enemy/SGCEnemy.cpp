@@ -79,7 +79,7 @@ void ASGCEnemy::ApplyDamage()
 	{
 		PlayerPawn->TakeDamage(Damage, FDamageEvent(), GetController(), this);
 	}
-	//UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), OuterDamageRadius, UDamageType::StaticClass(),	{ GetOwner() }, this, GetController(), true);
+	//UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), OuterDamageRadius, UDamageType::StaticClass(), { GetOwner() }, this, GetController(), true);
 
 
 	if (bShowDamegeSphere)

@@ -71,6 +71,8 @@ protected:
 private:
 	int32 CoinAmount = 0;
 
+	class APlayerController* CharacterConstroller = nullptr;
+
 	bool PayCoins(int32 Coins);
 	bool BuyBullets(int32 Coins, int32 Bullets);
 	void TryBuyBullets();

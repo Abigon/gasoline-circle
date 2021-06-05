@@ -29,6 +29,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0", ClampMax = "500.0"))
 	float MaxHealth = 100.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Effect")
+	TSubclassOf<class UCameraShakeBase> CameraShake;
+
 private:
 	float Health;
 
@@ -37,4 +40,5 @@ private:
 
 	void SetHealth(float NewHealth);
 	void ApplyDamage(float Damage);
+	void PlayCameraShake();
 };

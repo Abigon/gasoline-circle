@@ -73,12 +73,6 @@ void ASGCGameMode::KillPlayer()
 // Волны
 void ASGCGameMode::StartWave()
 {
-	CurrentWaveSpawnData = WaveSpawnData[CurrentWave];
-	for (auto EnemyData : CurrentWaveSpawnData.EnemiesData)
-	{
-		WaveLeftEnemies += EnemyData.EnemiesAmount;
-	}
-
 	for (auto SpawnVolume : TActorRange<ASGCEnemySpawnVolume>(GetWorld()))
 	{
 		if (SpawnVolume) SpawnVolume->Reset();
@@ -149,6 +143,13 @@ void ASGCGameMode::PrepareToWave()
 	{
 		PlayerController0->SetPlayerControlAvaible(false);
 	}
+
+	CurrentWaveSpawnData = WaveSpawnData[CurrentWave];
+	for (auto EnemyData : CurrentWaveSpawnData.EnemiesData)
+	{
+		WaveLeftEnemies += EnemyData.EnemiesAmount;
+	}
+
 	StopSale();
 	OnStartWaveTimeCountdown.Broadcast();
 	GetWorldTimerManager().SetTimer(WaveStartCountdownTimerHandle, this, &ASGCGameMode::StartWave, SecondsCountdownToWaveStart, false);
