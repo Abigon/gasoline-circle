@@ -6,7 +6,6 @@
 #include "Items/SGCCoin.h"
 #include "SGCComponents/SGCHealthComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
@@ -34,6 +33,8 @@ ASGCEnemy::ASGCEnemy()
 
 	HealthComponent = CreateDefaultSubobject<USGCHealthComponent>(TEXT("HealthComponent"));
 	MovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
+
+	// Устанавливаем скорость движения моба по умолчанию
 	MovementComponent->MaxSpeed = 300.f;
 }
 
@@ -43,19 +44,28 @@ void ASGCEnemy::BeginPlay()
 
 	check(CollisionComponent);
 	check(Mesh);
+	check(HealthComponent);
+	check(MovementComponent);
 
+	// Игнорируем себя для коллизий
 	CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
+
+	// Подписываемся на событие смерти от HealthComponent, для ее обработки
+	// Больше актуально для Character, с анимацей и т.п.
 	HealthComponent->OnDeath.AddUObject(this, &ASGCEnemy::OnDeath);
 
 	PlayerPawn = Cast<ASGCMainCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
+	// Устанавливаем таймеры на дамаг и спаун монет
 	GetWorldTimerManager().SetTimer(DamageTimerHandle, this, &ASGCEnemy::ApplyDamage, TimeBetweenDamage, true);
 	GetWorldTimerManager().SetTimer(CoinSpawnHandle, this, &ASGCEnemy::SpawnCoins, TimeBetweenCoinsSpawn, true);
 
+	// Иничиализация переменных для прыжков
 	StartZ = GetActorLocation().Z;
 	MaxJumpZ = StartZ + JumpHeight;
 	bIsMoveUp = true;
 
+	// Звук появления
 	if (GetWorld())
 	{
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, GetActorLocation());
@@ -65,6 +75,8 @@ void ASGCEnemy::BeginPlay()
 void ASGCEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	// Каждый тик двигаемся и поварачиваемся к игроку, и прыгаем, прыгаем, прыгаем...
 
 	MoveToPlayer();
 	RotateToPlayer();
@@ -73,6 +85,8 @@ void ASGCEnemy::Tick(float DeltaTime)
 
 void ASGCEnemy::ApplyDamage()
 {
+	// Вычисляем дистанцию до игрока, и если она находится между радиусов урона, наносим игроку урон
+
 	auto DistanceToPlayer = FVector::Dist(PlayerPawn->GetActorLocation(), GetActorLocation());
 
 	if ((DistanceToPlayer >= InnerDamageRadius) && (DistanceToPlayer <= OuterDamageRadius))
@@ -81,7 +95,7 @@ void ASGCEnemy::ApplyDamage()
 	}
 	//UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), OuterDamageRadius, UDamageType::StaticClass(), { GetOwner() }, this, GetController(), true);
 
-
+	// Ввыод отображения сфер урона
 	if (bShowDamegeSphere)
 	{
 		DrawDebugSphere(GetWorld(), GetActorLocation(), OuterDamageRadius, 12, FColor::Red, false, 0.5f);
@@ -92,26 +106,28 @@ void ASGCEnemy::ApplyDamage()
 	}
 }
 
+// Обработка смерти моба со свуком и эффектом
 void ASGCEnemy::OnDeath()
 {
 	GetWorldTimerManager().ClearTimer(DamageTimerHandle);
-	if (DeathParticles)
+	GetWorldTimerManager().ClearTimer(CoinSpawnHandle);
+
+	if (GetWorld())
 	{
-		if (GetWorld())
-		{
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathParticles, GetActorLocation(), FRotator(0.f), true);
-		}
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DeathParticles, GetActorLocation(), FRotator(0.f), true);
 	}
 	Destroy();
 }
 
+// Движение к игроку
 void ASGCEnemy::MoveToPlayer()
 {
 	if (!PlayerPawn) return;
 	UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), PlayerPawn->GetActorLocation());
 }
 
+// Поворот "лицом" к игроку
 void ASGCEnemy::RotateToPlayer()
 {
 	if (!PlayerPawn) return;
@@ -121,6 +137,8 @@ void ASGCEnemy::RotateToPlayer()
 	SetActorRotation(TurretRotation);
 }
 
+// Прыжок моба
+// При достижении максимальной или минимальной высоты надо менять направление движения
 void ASGCEnemy::EnemyJump(float DeltaTime)
 {
 	if (!bEnemyJump) return;
@@ -148,13 +166,16 @@ void ASGCEnemy::EnemyJump(float DeltaTime)
 	SetActorLocation(Location);
 }
 
+// Спаун монет
 void ASGCEnemy::SpawnCoins()
 {
 	if (!CoinsClass) return;
 
+	// Определяем выпал шанс или нет
 	bool IsCoinSpawn = FMath::RandRange(0.f, 100.f) <= ChanceToCoinsSpawnPercent;
 	if (!IsCoinSpawn) return;
 
+	// Если да, то определяем кол-во монет и спауним монеты
 	int32 CoinsAmount = FMath::RandBool() ? CoinsSpawnMax : CoinsSpawnMin;
 
 	FActorSpawnParameters SpawnParams;
