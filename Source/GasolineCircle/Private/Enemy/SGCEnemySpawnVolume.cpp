@@ -12,6 +12,7 @@ ASGCEnemySpawnVolume::ASGCEnemySpawnVolume()
 	PrimaryActorTick.bCanEverTick = false;
 
 	SpawningBox = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawningBox"));
+	SpawningBox->SetBoxExtent(FVector(32, 32, 200));
 }
 
 void ASGCEnemySpawnVolume::BeginPlay()
@@ -20,7 +21,8 @@ void ASGCEnemySpawnVolume::BeginPlay()
 	Reset();
 }
 
-ASGCEnemy* ASGCEnemySpawnVolume::SpawnEnemy(TSubclassOf<class ASGCEnemy> EnemyClass)
+// —паун моба заданного класса
+ASGCEnemy* ASGCEnemySpawnVolume::SpawnEnemy(TSubclassOf<ASGCEnemy> EnemyClass)
 {
 	if (!IsCanSpawn() || !GetWorld()) return nullptr;
 	
@@ -32,6 +34,10 @@ ASGCEnemy* ASGCEnemySpawnVolume::SpawnEnemy(TSubclassOf<class ASGCEnemy> EnemyCl
 	return Cast<ASGCEnemy>(Actor);
 }
 
+
+// ¬озвращает точку спауна моба в пределах SpawningBox
+// ≈сли спауниь мобов в одной точке, то при многократном спауне в одной точке 
+//из-за коллизии они могут уперетьс€ друг в друга
 FVector ASGCEnemySpawnVolume::GetSpawnPoint()
 {
 	FVector Extent = SpawningBox->GetScaledBoxExtent();

@@ -7,6 +7,13 @@
 #include "SGCGameInstance.generated.h"
 
 
+/*
+	Класс GameInstance. 
+	Нужен для хранения наименований уровня игры и уровня главного меню
+	Моэно расширить под несколько уровней игры с соответствующими изменениями в MainMenu
+*/
+
+
 UCLASS()
 class GASOLINECIRCLE_API USGCGameInstance : public UGameInstance
 {
