@@ -118,7 +118,7 @@ void ASGCMainCharacter::RotateToCursor()
 	FVector LookAtTargetClean = FVector(LookAtTarget.X, LookAtTarget.Y, GetActorLocation().Z);
 	FVector StartLocation = GetActorLocation();
 	FRotator CharRotation = FVector(LookAtTargetClean - StartLocation).Rotation();
-	Controller->SetControlRotation(CharRotation);
+	CharacterConstroller->SetControlRotation(CharRotation);
 }
 
 // Движение и вращение персонажа
