@@ -3,7 +3,6 @@
 
 #include "Character/SGCMainCharacter.h"
 #include "Core/SGCGameMode.h"
-//#include "Core/SGCPlayerController.h"
 #include "SGCComponents/SGCWeaponComponent.h"
 #include "SGCComponents/SGCHealthComponent.h"
 #include "Camera/CameraComponent.h"
@@ -29,6 +28,8 @@ ASGCMainCharacter::ASGCMainCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = false; 
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 640.0f, 0.0f); 
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
@@ -43,6 +44,7 @@ ASGCMainCharacter::ASGCMainCharacter()
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 
+	// Создаем компоненты здоровья и оружия
 	HealthComponent = CreateDefaultSubobject<USGCHealthComponent>(TEXT("HealthComponent"));
 	WeaponComponent = CreateDefaultSubobject<USGCWeaponComponent>(TEXT("WeaponComponent"));
 }
@@ -56,6 +58,7 @@ void ASGCMainCharacter::BeginPlay()
 	check(HealthComponent);
 	check(WeaponComponent);
 
+	// Подписываемся на событие смерти в компоненте здоровья
 	HealthComponent->OnDeath.AddUObject(this, &ASGCMainCharacter::OnDeath);
 
 	CharacterConstroller = GetController<APlayerController>();
@@ -67,7 +70,8 @@ void ASGCMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-//	RotateToCursor(); Включить для вращения за курсором при включенном курсоре
+	//Включить для вращения за курсором при включенном курсоре
+	//RotateToCursor(); 
 }
 
 void ASGCMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -88,6 +92,7 @@ void ASGCMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("BuyBullets", IE_Pressed, this, &ASGCMainCharacter::TryBuyBullets);
 }
 
+// Обработка зума камеры
 void ASGCMainCharacter::CameraZoomIn()
 {
 	float CurrentTargetArmLength = SpringArmComponent->TargetArmLength;
@@ -100,6 +105,8 @@ void ASGCMainCharacter::CameraZoomOut()
 	SpringArmComponent->TargetArmLength = FMath::Min(CurrentTargetArmLength + CameraZoomSpeed, CameraZoomMax);
 }
 
+// Вращение персонажа за включенным курсором 
+// В данной реализации не используется
 void ASGCMainCharacter::RotateToCursor()
 {
 	if (!CharacterConstroller) return;
@@ -110,10 +117,11 @@ void ASGCMainCharacter::RotateToCursor()
 
 	FVector LookAtTargetClean = FVector(LookAtTarget.X, LookAtTarget.Y, GetActorLocation().Z);
 	FVector StartLocation = GetActorLocation();
-	FRotator TurretRotation = FVector(LookAtTargetClean - StartLocation).Rotation();
-	SetActorRotation(TurretRotation);
+	FRotator CharRotation = FVector(LookAtTargetClean - StartLocation).Rotation();
+	Controller->SetControlRotation(CharRotation);
 }
 
+// Движение и вращение персонажа
 void ASGCMainCharacter::TurnAtRate(float Rate)
 {
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
@@ -141,6 +149,9 @@ void ASGCMainCharacter::MoveRight(float Value)
 	}
 }
 
+
+// Обработка смерти персонажа
+// Тело просто падает с использованием физики
 void ASGCMainCharacter::OnDeath()
 {
 	//PlayAnimMontage(DeathAnimMontage);
@@ -153,6 +164,8 @@ void ASGCMainCharacter::OnDeath()
 	GetMesh()->SetSimulatePhysics(true);
 }
 
+
+// Добавление монет при луте
 void ASGCMainCharacter::AddCoins(int32 Coins)
 {
 	if (MaxCoinAmount != 0)
@@ -165,33 +178,32 @@ void ASGCMainCharacter::AddCoins(int32 Coins)
 	}
 }
 
-bool ASGCMainCharacter::PayCoins(int32 Coins)
+
+// Покупка патронов на аукционе
+// В случае нехвати монет вернет false
+// Иначе спишет монеты и добавит патроны
+// Проверки на полный инвентарь и отсутствия необходимости покупать монеты нет
+bool ASGCMainCharacter::BuyBullets(int32 Coins, int32 Bullets)
 {
 	if (CanPay(Coins))
 	{
 		CoinAmount -= Coins;
-		return true;
-	}
-	return false;
-}
-
-bool ASGCMainCharacter::BuyBullets(int32 Coins, int32 Bullets)
-{
-	if (PayCoins(Coins))
-	{
 		WeaponComponent->AddCurrentBullets(Bullets);
 		return true;
 	}
 	return false;
 }
 
+// Обработка нажатия кнопки покупки на аукционе
 void ASGCMainCharacter::TryBuyBullets()
 {
 	if (!GetWorld()) return;
 	auto GameMode = Cast<ASGCGameMode>(GetWorld()->GetAuthGameMode());
 
+	// Если аукцион не активен, выходим
 	if (!GameMode || !GameMode->IsSale()) return;
 
+	// Если покупка удалась, останавливаем аукцион
 	if (BuyBullets(GameMode->GetCurrentPriceOfBullets(), GameMode->GetBulletsForSale()))
 	{
 		GameMode->EndSale();
@@ -203,6 +215,8 @@ void ASGCMainCharacter::TryBuyBullets()
 	}
 }
 
+// Востановление начальных параметров персонажа перед началом новой волны
+// Параметры, которые надо восстанавливать задаются в настройках GameMode
 void ASGCMainCharacter::ResetPlayer(bool bIsRestoreHealth, bool bIsResetAmmo, bool bIsResetCoins)
 {
 	if (bIsRestoreHealth) HealthComponent->RestoreHealth();

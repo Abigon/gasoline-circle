@@ -7,6 +7,12 @@
 #include "GameFramework/PlayerController.h"
 #include "SGCPlayerController.generated.h"
 
+/*
+	 ласс контроллера игрока.
+	ѕо факту обрабатывает постановку игры паузу 
+	» блокнирует/разблокирует управление во врем€ ожидани€ следубщей волны
+*/
+
 
 UCLASS()
 class GASOLINECIRCLE_API ASGCPlayerController : public APlayerController
